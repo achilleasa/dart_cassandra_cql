@@ -426,9 +426,9 @@ client.connectionPool.listenForServerEvents([
 ### Shutting down the client
 
 The shutdown the client you need to invoke the ```shutdown()``` method. 
-This method accepts the named parameter ```drain``` (defaults to ```true```) that controls how the shutdown should be performed and  returns a [Future](https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart:async.Future).
+This method accepts the named parameters ```drain``` (defaults to ```true```) and ```drainTimeout``` (defaults to ```Duration(seconds : 5)``` that control how the shutdown should be performed and returns a [Future](https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart:async.Future).
 
-To perform a graceful shutdown, set the ```drain``` named parameter to ```true```. The client will mark all connections as unhealthy so that no more queries can be performed and wait for any pending queries to complete before shutting down each connection. The returned [Future](https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart:async.Future) will complete once all active connections shut down.
+To perform a graceful shutdown, set the ```drain``` named parameter to ```true```. The client will mark all connections as unhealthy so that no more queries can be performed and wait for any pending queries to complete (or the ```drainTimeout``` expires) before shutting down each connection. The returned [Future](https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart:async.Future) will complete once all active connections shut down.
 
 If the ```drain``` named parameter is set to ```false``` then the client will mark all connections as unhealthy so that no more queries can be performed and *abort* any pending queries.
 

@@ -278,6 +278,9 @@ class Connection {
         responseCompleter.completeError(message.exception, message.stackTrace);
       }
       return;
+    } else if (message.opcode != Opcode.EVENT && responseCompleter == null) {
+      // Connection has probably been aborted before we got to process this message; ignore
+      return;
     }
 
     switch (message.opcode) {
@@ -347,8 +350,9 @@ class Connection {
   /**
    * Close the connection and set the [inService] flag to false so no new
    * requests are sent to this connection. If the [drain] flag is set then the socket
-   * will be disconnected when all pending requests finish. Otherwise, the socket
-   * will be immediately disconnected and any pending requests will automatically fail.
+   * will be disconnected when all pending requests finish or when [drainTimeout] expires.
+   * Otherwise, the socket will be immediately disconnected and any pending requests will
+   * automatically fail.
    *
    * Once the connection is closed, any further invocations of close() will immediately
    * succeed.
@@ -356,7 +360,7 @@ class Connection {
    * This method returns a [Future] to be completed when the connection is shut down
    */
 
-  Future close({bool drain : true}) {
+  Future close({bool drain : true, Duration drainTimeout : const Duration(seconds : 5)}) {
     // Already closed
     if (_socket == null) {
       return new Future.value();
@@ -372,6 +376,17 @@ class Connection {
       if (_drained == null) {
         _drained = new Completer();
         _checkForDrainedRequests();
+
+        if (drainTimeout != null) {
+          new Future.delayed(drainTimeout).then((_) {
+            if (_drained != null && !_drained.isCompleted) {
+              _abortRequestsAndCleanup(new ConnectionLostException('Connection drain timeout'))
+              .then((_) {
+                _drained .complete();
+              });
+            }
+          });
+        }
       }
 
       return _drained.future;

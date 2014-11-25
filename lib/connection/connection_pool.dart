@@ -17,10 +17,10 @@ abstract class ConnectionPool {
   /**
    * Disconnect all pool connections. If the [drain] flag is set to true, all pool connections
    * will be drained prior to being disconnected and a [Future] will be returned that will complete
-   * when all connections are drained. If [drain] is false then the returned [Future] will be already
-   * completed.
+   * when all connections are drained or when the [drainTimeout] expires. If [drain] is false then
+   * the returned [Future] will already be completed.
    */
-  Future disconnect({ bool drain : true });
+  Future disconnect({ bool drain : true, Duration drainTimeout : const Duration( seconds : 5 )});
 
   /**
    * Get back an active [Connection] from the pool.

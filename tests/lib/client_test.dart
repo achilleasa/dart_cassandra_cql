@@ -103,7 +103,9 @@ void main() {
         void connected(_) {
         }
 
-        client.connectionPool.connect().then(expectAsync(connected));
+        client.connectionPool.connect()
+        .then(expectAsync(connected))
+        .catchError((e) => fail(e));
       });
 
     });
@@ -988,7 +990,7 @@ INSERT INTO test.type_test (
             // Wait for event registration message to be received and then reply the event message
             new Timer(new Duration(milliseconds: 100), () => server.replayFile(0, "event_status_down_v2.dump"));
             new Timer(new Duration(milliseconds: 200), () => server.replayFile(0, "event_status_up_v2.dump"));
-            return new Future.delayed(new Duration(milliseconds:300), () => server.shutdown());
+            return new Future.delayed(new Duration(milliseconds:400), () => server.shutdown());
           })
           .then((_) => client.execute(new cql.Query("USE test")))
           .then(expectAsync(handleResult));

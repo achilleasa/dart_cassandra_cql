@@ -63,8 +63,8 @@ class Client {
    * that will complete when all connections are drained. If [drain] is false then the returned [Future]
    * will be already completed.
    */
-  Future shutdown({ bool drain : true}) {
-    return connectionPool.disconnect(drain: drain);
+  Future shutdown({ bool drain : true, Duration drainTimeout : const Duration( seconds : 5 )}) {
+    return connectionPool.disconnect(drain: drain, drainTimeout : drainTimeout);
   }
 
   /**

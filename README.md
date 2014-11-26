@@ -21,7 +21,7 @@ First, add the library to the list of dependencies in your **pubspec.yaml** file
 
 ```
 dependencies:
-  dart_cassandra_cql: ">=0.1.0 <0.2.0"
+  dart_cassandra_cql: ">=0.1.1 <0.2.0"
 ```
     
 Then, run ```pub install``` to install the package.

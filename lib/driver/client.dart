@@ -5,10 +5,10 @@ import "dart:collection";
 import "dart:typed_data";
 
 // Internal lib dependencies
-import "connection.dart";
-import "protocol.dart";
-import "query.dart";
-import "exceptions.dart";
+import 'connection.dart';
+import 'protocol.dart';
+import 'query.dart';
+import 'exceptions.dart';
 
 // Client impl
 part "client/client.dart";

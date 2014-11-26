@@ -4,7 +4,7 @@ import "dart:typed_data";
 import "dart:io";
 import "package:unittest/unittest.dart";
 
-import "../../dart_cassandra_cql.dart" as cql;
+import '../../lib/dart_cassandra_cql.dart' as cql;
 import "mocks/mocks.dart" as mock;
 import "mocks/custom.dart" as custom;
 

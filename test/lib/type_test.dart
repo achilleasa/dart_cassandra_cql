@@ -4,7 +4,7 @@ import "dart:typed_data";
 import "dart:io";
 import "package:unittest/unittest.dart";
 
-import "../../lib/types.dart";
+import '../../lib/driver/types.dart';
 import 'mocks/mocks.dart' as mock;
 import "mocks/custom.dart" as custom;
 

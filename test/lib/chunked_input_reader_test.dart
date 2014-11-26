@@ -2,7 +2,7 @@ library dart_cassandra_cql.tests.chunked_input_reader;
 
 import "package:unittest/unittest.dart";
 
-import "../../lib/stream.dart";
+import '../../lib/driver/stream.dart';
 
 main({bool enableLogger : true}) {
 

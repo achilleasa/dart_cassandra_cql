@@ -7,7 +7,7 @@ import "dart:convert";
 import "dart:math";
 
 // Internal lib dependencies
-import "types.dart";
+import 'types.dart';
 
 // Block reader/writers
 part "stream/chunked_input_reader.dart";

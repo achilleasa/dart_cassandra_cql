@@ -2,7 +2,7 @@ library dart_cassandra_cql.tests.pool_config;
 
 import "package:unittest/unittest.dart";
 
-import "../../dart_cassandra_cql.dart" as cql;
+import '../../lib/dart_cassandra_cql.dart' as cql;
 
 main({bool enableLogger : true}) {
 

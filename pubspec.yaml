@@ -1,6 +1,7 @@
 name: dart_cassandra_cql
 version: 0.1.0
-author: Achilleas Anagnostopoulos <achilleas.imap.mbox@gmail.com>
+author: Achilleas Anagnostopoulos
+documentation:
 description: Dart driver for apache Cassandra
 homepage: https://github.com/achilleasa/dart_cassandra_cql
 dependencies:

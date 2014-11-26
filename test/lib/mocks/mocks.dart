@@ -4,9 +4,9 @@ import "dart:typed_data";
 import "dart:io";
 import "dart:async";
 import "package:logging/logging.dart";
-import "../../../lib/stream.dart";
-import "../../../lib/protocol.dart";
-import "../../../lib/types.dart";
+import '../../../lib/driver/stream.dart';
+import '../../../lib/driver/protocol.dart';
+import '../../../lib/driver/types.dart';
 
 final Logger mockLogger = new Logger("MockLogger");
 bool initializedLogger = false;

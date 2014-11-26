@@ -4,9 +4,9 @@ import "dart:async";
 import "package:unittest/unittest.dart";
 import "mocks/mocks.dart" as mock;
 
-import "../../lib/types.dart";
-import "../../lib/protocol.dart";
-import "../../lib/exceptions.dart";
+import '../../lib/driver/types.dart';
+import '../../lib/driver/protocol.dart';
+import '../../lib/driver/exceptions.dart';
 
 main({bool enableLogger : true}) {
   if( enableLogger ){

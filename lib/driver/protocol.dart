@@ -7,9 +7,9 @@ import "dart:collection";
 import "dart:convert";
 
 // Internal lib dependencies
-import "types.dart";
-import "stream.dart";
-import "query.dart";
+import 'types.dart';
+import 'stream.dart';
+import 'query.dart';
 import 'exceptions.dart';
 
 // Protocol frame readers

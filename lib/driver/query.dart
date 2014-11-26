@@ -6,7 +6,7 @@ import "dart:typed_data";
 import "dart:collection";
 
 // Internal lib dependencies
-import "types.dart";
+import 'types.dart';
 
 // Query
 part "query/query_interface.dart";

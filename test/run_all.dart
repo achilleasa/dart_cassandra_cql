@@ -12,49 +12,53 @@ import "lib/pool_config_test.dart" as poolConfig;
 import "lib/client_test.dart" as client;
 
 void main(List<String> args) {
+
+  // Check if we need to disable our loggers
+  bool enableLogger = args.indexOf('--disable-logger') == -1;
+
   String allArgs = args.join(".");
-  bool runAll = args.isEmpty;
+  bool runAll = args.isEmpty || allArgs == '--disable-logger';
 
   //useCompactVMConfiguration();
 
   if (runAll || (new RegExp("enums")).hasMatch(allArgs)) {
-    enums.main();
+    enums.main(enableLogger : enableLogger);
   }
 
   if (runAll || (new RegExp("chunked-input-reader")).hasMatch(allArgs)) {
-    chunkedInputReader.main();
+    chunkedInputReader.main(enableLogger : enableLogger);
   }
 
   if (runAll || (new RegExp("serialization")).hasMatch(allArgs)) {
-    serialization.main();
+    serialization.main(enableLogger : enableLogger);
   }
 
   if (runAll || (new RegExp("frame-parser")).hasMatch(allArgs)) {
-    frameParser.main();
+    frameParser.main(enableLogger : enableLogger);
   }
 
   if (runAll || (new RegExp("frame-writer")).hasMatch(allArgs)) {
-    frameWriter.main();
+    frameWriter.main(enableLogger : enableLogger);
   }
 
   if (runAll || (new RegExp("connection")).hasMatch(allArgs)) {
-    connection.main();
+    connection.main(enableLogger : enableLogger);
   }
 
   if (runAll || (new RegExp("type-test")).hasMatch(allArgs)) {
-    typeTest.main();
+    typeTest.main(enableLogger : enableLogger);
   }
 
   if (runAll || (new RegExp("pool-config")).hasMatch(allArgs)) {
-    poolConfig.main();
+    poolConfig.main(enableLogger : enableLogger);
   }
 
   if (runAll || (new RegExp("query")).hasMatch(allArgs)) {
-    query.main();
+    query.main(enableLogger : enableLogger);
   }
 
   if (runAll || (new RegExp("client")).hasMatch(allArgs)) {
-    client.main();
+    client.main(enableLogger : enableLogger);
   }
 
 }

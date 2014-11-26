@@ -8,8 +8,10 @@ import "mocks/mocks.dart" as mock;
 import "mocks/custom.dart" as custom;
 import "../../dart_cassandra_cql.dart" as cql;
 
-void main() {
-  mock.initLogger();
+main({bool enableLogger : true}) {
+  if( enableLogger ){
+    mock.initLogger();
+  }
 
   const String SERVER_HOST = "127.0.0.1";
   const int SERVER_PORT = 32000;

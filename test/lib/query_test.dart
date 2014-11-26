@@ -8,8 +8,10 @@ import "../../dart_cassandra_cql.dart" as cql;
 import "mocks/mocks.dart" as mock;
 import "mocks/custom.dart" as custom;
 
-main() {
-  mock.initLogger();
+main({bool enableLogger : true}) {
+  if( enableLogger ){
+    mock.initLogger();
+  }
 
   group("Single query:", () {
 

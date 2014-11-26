@@ -8,8 +8,10 @@ import "../../lib/types.dart";
 import 'mocks/mocks.dart' as mock;
 import "mocks/custom.dart" as custom;
 
-main() {
-  mock.initLogger();
+main({bool enableLogger : true}) {
+  if( enableLogger ){
+    mock.initLogger();
+  }
 
   group("Collection type:", () {
     test("isCollection(LIST)", () {

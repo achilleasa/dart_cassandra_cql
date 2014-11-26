@@ -4,7 +4,7 @@ import "package:unittest/unittest.dart";
 
 import "../../dart_cassandra_cql.dart" as cql;
 
-main() {
+main({bool enableLogger : true}) {
 
   group("Pool config:", () {
     test("invalid protocol", () {

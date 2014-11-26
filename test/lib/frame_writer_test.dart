@@ -8,8 +8,10 @@ import "../../lib/protocol.dart";
 import "../../lib/stream.dart";
 import "../../lib/exceptions.dart";
 
-main() {
-  mock.initLogger();
+main({bool enableLogger : true}) {
+  if( enableLogger ){
+    mock.initLogger();
+  }
 
   FrameWriter frameWriter;
   mock.MockChunkedOutputWriter mockOutputWriter = new mock.MockChunkedOutputWriter();

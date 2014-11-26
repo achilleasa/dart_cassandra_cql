@@ -8,8 +8,10 @@ import "../../lib/types.dart";
 import "../../lib/protocol.dart";
 import "../../lib/exceptions.dart";
 
-main() {
-  mock.initLogger();
+main({bool enableLogger : true}) {
+  if( enableLogger ){
+    mock.initLogger();
+  }
 
   FrameWriter writer;
   StreamController streamController;

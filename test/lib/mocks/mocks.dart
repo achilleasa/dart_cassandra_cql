@@ -8,13 +8,14 @@ import "../../../lib/stream.dart";
 import "../../../lib/protocol.dart";
 import "../../../lib/types.dart";
 
-Logger mockLogger = null;
+final Logger mockLogger = new Logger("MockLogger");
+bool initializedLogger = false;
 
 void initLogger() {
-  if (mockLogger != null) {
+  if( initializedLogger == true ){
     return;
   }
-  mockLogger = new Logger("MockLogger");
+  initializedLogger = true;
   hierarchicalLoggingEnabled = true;
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((LogRecord rec) {

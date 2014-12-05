@@ -16,18 +16,6 @@ The driver has a small dependency tree and implements Cassandra binary protocol 
  - Query result streaming
  - Support for all Cassandra types including [user defined types](http://www.datastax.com/dev/blog/cql-in-2-1) (UDT),  [tuples](http://www.datastax.com/documentation/developer/java-driver/2.1/java-driver/reference/tupleTypes.html) and custom types (via user-defined Codecs)
 
-# Installing
-First, add the library to the list of dependencies in your **pubspec.yaml** file:
-
-```
-dependencies:
-  dart_cassandra_cql: ">=0.1.1 <0.2.0"
-```
-    
-Then, run ```pub install``` to install the package.
-
-If your package is an [application package](https://www.dartlang.org/tools/pub/glossary.html#application-package) you should use ```any``` as the [version constraint](https://www.dartlang.org/tools/pub/glossary.html#version-constraint).
-
 # Quick start
 
 For a more in-depth explanation please check out the [Api](#api) section.

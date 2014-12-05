@@ -6,7 +6,7 @@ import "package:unittest/unittest.dart";
 import "mocks/mocks.dart" as mock;
 import "mocks/compression.dart" as compress;
 import '../../lib/dart_cassandra_cql.dart' as cql;
-import '../../lib/driver/exceptions.dart' as cqlEx;
+import '../../lib/src/exceptions.dart' as cqlEx;
 
 main({bool enableLogger : true}) {
   if( enableLogger ){

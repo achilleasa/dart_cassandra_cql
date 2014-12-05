@@ -5,8 +5,8 @@ import "dart:io";
 import "dart:math";
 import "package:unittest/unittest.dart";
 
-import '../../lib/driver/stream.dart';
-import '../../lib/driver/types.dart';
+import '../../lib/src/stream.dart';
+import '../../lib/src/types.dart';
 import "mocks/mocks.dart" as mock;
 import 'mocks/custom.dart' as custom;
 

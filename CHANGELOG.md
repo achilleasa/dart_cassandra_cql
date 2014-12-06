@@ -1,6 +1,7 @@
-## 0.1.2 (November 27, 2014)
+## 0.1.2 (December 6, 2014)
 
 Renamed lib/driver to lib/src so that docgen works
+Fixed race condition while flushing data to sockets ([#1](https://github.com/achilleasa/dart_cassandra_cql/issues/1))
 
 ## 0.1.1 (November 26, 2014)
 

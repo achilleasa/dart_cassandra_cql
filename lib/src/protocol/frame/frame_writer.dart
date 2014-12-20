@@ -45,13 +45,8 @@ class FrameWriter {
       }
 
       // Replace writer blocks with compressed output and enable the compression flag for the header
-      // According to the protocol spec, when using LZ4 we need to prepend a 4-byte int with the
-      // uncompressed data length before the payload
       _header.flags |= HeaderFlag.COMPRESSION.value;
       _typeEncoder.writer.clear();
-      if (compression == Compression.LZ4) {
-        _typeEncoder.writeUInt32(uncompressedLen);
-      }
       _typeEncoder.writer.addLast(compressedData);
     }
 

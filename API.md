@@ -159,7 +159,7 @@ If the Cassandra cluster requires authentication but none is supplied or an inco
 
 In order to keep external dependencies to a minimum, the driver does not ship with native implementations for the two compression schemes currently supported by Cassandra (lz4 and snappy).
 
-The driver however allows provides a mechanism for registering a [Codec\<Uint8List, Uint8List>](https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart:convert.Codec) that implements one of the above compression schemes. This allows you to use a third-party dart package for handling compression if your particular application requires it.
+The driver however allows provides a mechanism for registering a [Codec\<Uint8List, Uint8List>](https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart:convert.Codec) that implements one of the above compression schemes. This allows you to use a third-party dart package (e.g [dart_lz4](https://github.com/achilleasa/dart_lz4) native extension) for handling compression if your particular application requires it.
 
 To use this feature you need to invoke the public method ```registerCodec(String, Codec<Object, Uint8List>)``` and specify one of the [Compression](https://github.com/achilleasa/dart_cassandra_cql/blob/master/lib/src/types/enums/compression.dart) enum **values** (e.g. ```Compression.LZ4.value```) as the first argument and a class instance implementing ```Codec<Uint8, Uint8>``` as the second argument.
 

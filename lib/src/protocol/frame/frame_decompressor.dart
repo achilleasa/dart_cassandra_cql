@@ -22,10 +22,9 @@ class FrameDecompressor {
         }
 
         // Decompress and replace body data. According to the spec, if the compression algorithm is LZ4
-        // then we need to skip the first 4 bytes which signify the uncompressed length
-        Uint8List bodyData = _compression == Compression.LZ4
-                             ? new Uint8List.view(frame.body.buffer, 4, frame.body.lengthInBytes - 4)
-                             : new Uint8List.view(frame.body.buffer, 0, frame.body.lengthInBytes);
+        // then the first four bytes of the payload should include its decompressed length so compliant
+        // LZ4 codecs should expect this.
+        Uint8List bodyData = new Uint8List.view(frame.body.buffer, 0, frame.body.lengthInBytes);
 
         // Generate uncompressed frame
         bodyData = compressionCodec.decode(bodyData);

@@ -156,10 +156,6 @@ class MockServer {
     Uint8List compressedBody = getCodec(_compression.value).encode(bodyView);
 
     // Assemble compressed payload:
-    // If we use LZ4 prepend the uncompressed length as a 4-byte int
-    if (_compression == Compression.LZ4) {
-      encoder.writeUInt32(originalLen);
-    }
     encoder.writer.addLast(compressedBody);
 
     // Toggle header compression flag and update body size

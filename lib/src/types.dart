@@ -4,7 +4,7 @@ import "dart:collection";
 import "dart:typed_data";
 import "dart:io";
 import "dart:convert";
-import "package:uuid/uuid_server.dart" as _uuidImpl;
+import "package:uuid/uuid.dart" as _uuidImpl;
 import "package:collection/wrappers.dart" as _wrappers;
 
 // Protocol enums

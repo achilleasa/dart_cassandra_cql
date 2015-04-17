@@ -1,6 +1,7 @@
 # Dart Driver for Apache Cassandra
 
 [![Build Status](https://drone.io/github.com/achilleasa/dart_cassandra_cql/status.png)](https://drone.io/github.com/achilleasa/dart_cassandra_cql/latest)
+[![Coverage Status](https://coveralls.io/repos/achilleasa/dart_cassandra_cql/badge.svg)](https://coveralls.io/r/achilleasa/dart_cassandra_cql)
 
 Dart driver for [Apache Cassandra](http://Cassandra.apache.org/) that supports Cassandra Query Language version [3.0+](http://www.datastax.com/documentation/cql/3.1/cql/cql_intro_c.html) (CQL3). 
 

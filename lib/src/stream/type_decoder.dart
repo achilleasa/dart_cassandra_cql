@@ -287,7 +287,6 @@ class TypeDecoder {
   TypeSpec readTypeOption() {
     DataType type = DataType.valueOf(readShort());
     Object keyType = null;
-    Object valueType = null;
     TypeSpec spec = null;
 
     // Collection types and custom type have additional

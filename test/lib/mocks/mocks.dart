@@ -152,7 +152,6 @@ class MockServer {
     Uint8List bodyView = new Uint8List.view(payload.buffer, version == ProtocolVersion.V2 ? FrameHeader.SIZE_IN_BYTES_V2 : FrameHeader.SIZE_IN_BYTES_V3, payload.lengthInBytes - headerView.lengthInBytes);
 
     // Compress body
-    int originalLen = bodyView.lengthInBytes;
     Uint8List compressedBody = getCodec(_compression.value).encode(bodyView);
 
     // Assemble compressed payload:

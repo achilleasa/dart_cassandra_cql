@@ -32,9 +32,6 @@ class FrameWriter {
         throw new DriverException("A compression codec needs to be registered via registerCodec() for type '${compression}'");
       }
 
-      // Get uncompressed payload size
-      int uncompressedLen = _typeEncoder.writer.lengthInBytes;
-
       // Concatenate all writer blocks into a single chunk and then pass it through the compression codec
       // Catch and wrap any codec exceptions
       Uint8List compressedData;

@@ -44,7 +44,7 @@ main({bool enableLogger : true}) {
     test("named to positional query missing bindings exception", () {
       cql.Query query = new cql.Query("SELECT foo FROM bar WHERE baz=:baz AND boo=:boo AND baz2=:baz");
       expect(query, new isInstanceOf<cql.QueryInterface>());
-      String posQuery = query.positionalQuery;
+      query.positionalQuery;
       query.bindings = {
           'baz' : true
       };

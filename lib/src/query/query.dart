@@ -253,7 +253,6 @@ class Query extends QueryInterface {
         ..write(r"'");
 
     } else if (value is TypedData) {
-      StringBuffer buffer = new StringBuffer();
       Uint8List v = new Uint8List.view(value.buffer, 0, value.lengthInBytes);
 
       if (v.lengthInBytes == 0) {

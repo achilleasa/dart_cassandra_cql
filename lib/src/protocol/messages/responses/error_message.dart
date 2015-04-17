@@ -30,7 +30,6 @@ class ErrorMessage extends Message {
         String consistency = Consistency.nameOf(decoder.readConsistency());
         int received = decoder.readUInt();
         int required = decoder.readUInt();
-        String writeType = decoder.readString(SizeType.SHORT);
         bool dataPresent = decoder.readByte() != 0;
         message += "Timeout during a read request with ${consistency} consistency. Received ${received}/${required} responses. The replica asked for the data ${dataPresent ? "HAS" : "has NOT"} responded";
         break;

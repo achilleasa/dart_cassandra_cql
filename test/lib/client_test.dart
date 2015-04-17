@@ -18,7 +18,6 @@ main({bool enableLogger : true}) {
   mock.MockServer server = new mock.MockServer();
   const int SERVER2_PORT = 32001;
   mock.MockServer server2 = new mock.MockServer();
-  cql.Connection conn;
 
   // Delay server2 responses to make sure that clients *always* connect
   // first so our tests (especially the event ones) execute as they should

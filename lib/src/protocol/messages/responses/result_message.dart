@@ -28,7 +28,7 @@ abstract class ResultMessage extends Message {
     int flags = metadata.flags = decoder.readUInt();
     bool globalTableSpec = (flags & RowResultFlag.GLOBAL_TABLE_SPEC.value) == RowResultFlag.GLOBAL_TABLE_SPEC.value;
     bool hasMorePages = (flags & RowResultFlag.HAS_MORE_PAGES.value) == RowResultFlag.HAS_MORE_PAGES.value;
-    bool noMetadata = (flags & RowResultFlag.NO_METADATA.value) == RowResultFlag.NO_METADATA.value;
+    //bool noMetadata = (flags & RowResultFlag.NO_METADATA.value) == RowResultFlag.NO_METADATA.value;
     int colCount = decoder.readUInt();
 
     // Parse paging state

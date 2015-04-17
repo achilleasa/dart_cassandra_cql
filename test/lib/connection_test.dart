@@ -85,7 +85,7 @@ main({bool enableLogger : true}) {
       conn.open()
       .then((_) {
         // Future f1 will grab our stream writer and wait for a server connection
-        Future f1 = conn.execute(new cql.Query("SELECT * FROM test")).catchError((_) {
+        conn.execute(new cql.Query("SELECT * FROM test")).catchError((_) {
         });
         // With a small delay, try a second query which should fail with a reservation timeout exception
         return new Future.delayed(new Duration(milliseconds:10), () => conn.execute(new cql.Query("SELECT * FROM test")));

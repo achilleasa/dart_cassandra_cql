@@ -1,3 +1,9 @@
+## 0.1.4 (April 17, 2015)
+
+Added the **preferBiggerTcpPackets** option (defaults to false). When enabled, the driver will
+join together protocol frame chunks before piping them to the underlying TCP socket. This option
+will improve performance at the expense of slightly higher memory consumption.
+
 ## 0.1.3 (December 20, 2014)
 
 Improved support for compression codecs

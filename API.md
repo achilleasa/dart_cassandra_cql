@@ -105,6 +105,7 @@ To instanciate a connection pool you need to provide a [PoolConfiguration](https
 | autoDiscoverNodes       | true                | If this flag is set to ```true```, the connection pool will listen for server topology change events and automatically update the pool when new nodes come online/go offline. If set to ```false```, the pool will only process UP/DOWN events for nodes already in the pool
 | authenticator           | null                | An authentication provider instance implementing the [Authenticator](https://github.com/achilleasa/dart_cassandra_cql/blob/master/lib/src/protocol/authentication/authenticator.dart) interface or **null** if no authentication is required. For more information see the section on [authentication](#cassandra-authentication)
 | compression             | null                | The compression algorithm to be used with Cassandra nodes. Its value should be one of the [Compression](https://github.com/achilleasa/dart_cassandra_cql/blob/master/lib/src/types/enums/compression.dart) enums or **null** if no compression should be used. For more information see the section on [compression](#compression)
+| preferBiggerTcpPackets  | false               | Join together frame data before piping them to the underlying TCP socket. Enabling this option will improve performance at the expense of slightly higher memory consumption
 
 ### Simple connection pool
 

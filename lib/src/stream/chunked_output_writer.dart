@@ -44,13 +44,20 @@ class ChunkedOutputWriter {
 
   /**
    * Pipe all buffered chunks to [destination] and clear the buffer queue
+   * [preferBiggerTcpPackets] may be set to true to pre-join the chunks and pipe them
+   * as a contiguous chunk. This reduces the number of transmitted TCP packets
+   * and should improve performance at the expense of a slightly higher memory usage
    */
 
-  void pipe(Sink destination) {
+  void pipe(Sink destination, {bool preferBiggerTcpPackets : false}) {
     if (destination == null) {
       return;
     }
-    _bufferedChunks.forEach((Uint8List block) => destination.add(block));
+    if( preferBiggerTcpPackets ){
+      destination.add(joinChunks());
+    } else {
+      _bufferedChunks.forEach((Uint8List block) => destination.add(block));
+    }
     clear();
   }
 

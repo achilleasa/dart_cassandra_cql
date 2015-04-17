@@ -1,10 +1,11 @@
 part of dart_cassandra_cql.protocol;
 
 class FrameWriter {
+  bool preferBiggerTcpPackets;
   TypeEncoder _typeEncoder;
   FrameHeader _header = new FrameHeader();
 
-  FrameWriter(int streamId, ProtocolVersion protocolVersion, {TypeEncoder withEncoder : null}) {
+  FrameWriter(int streamId, ProtocolVersion protocolVersion, {TypeEncoder withEncoder : null, bool this.preferBiggerTcpPackets : false}) {
     _header
       ..version = protocolVersion == ProtocolVersion.V2 ? HeaderVersion.REQUEST_V2 : HeaderVersion.REQUEST_V3
       ..flags = 0
@@ -85,7 +86,7 @@ class FrameWriter {
     //_typeEncoder.dumpToFile("frame-out.dump");
 
     // Pipe everything to the sink
-    _typeEncoder.writer.pipe(targetSink);
+    _typeEncoder.writer.pipe(targetSink, preferBiggerTcpPackets : preferBiggerTcpPackets);
   }
 }
 

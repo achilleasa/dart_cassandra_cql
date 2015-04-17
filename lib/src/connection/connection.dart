@@ -88,7 +88,7 @@ class Connection {
       // Initialize our writer pool and set the reservation timeout
       _reservedFrameWriters.clear();
       _frameWriterPool = new AsyncQueue<FrameWriter>.from(
-          new List<FrameWriter>.generate(_poolConfig.streamsPerConnection, (int id) => new FrameWriter(id, _poolConfig.protocolVersion))
+          new List<FrameWriter>.generate(_poolConfig.streamsPerConnection, (int id) => new FrameWriter(id, _poolConfig.protocolVersion, preferBiggerTcpPackets : _poolConfig.preferBiggerTcpPackets))
       );
       _frameWriterPool.reservationTimeout = _poolConfig.streamReservationTimeout;
 

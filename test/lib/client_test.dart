@@ -491,6 +491,25 @@ main({bool enableLogger : true}) {
         ).listen(expectAsync(streamCallback, count : 10, max : 10));
       });
 
+      test("process streamed rows (preferBiggerTcpPackets)", () {
+        server.setReplayList([
+          "stream_v2_1of3.dump"
+          , "stream_v2_2of3.dump"
+          , "stream_v2_3of3.dump"
+        ]);
+        client = new cql.Client.fromHostList([ "${SERVER_HOST}:${SERVER_PORT}"]
+        , poolConfig : new cql.PoolConfiguration(autoDiscoverNodes : false, preferBiggerTcpPackets : true)
+        );
+
+        void streamCallback(Map<String, Object> row) {
+        }
+
+        client.stream(
+            new cql.Query("SELECT * FROM test.page_view_counts")
+            , pageSize: 4
+        ).listen(expectAsync(streamCallback, count : 10, max : 10));
+      });
+
       test("pause/resume", () {
         server.setReplayList([
             "stream_v2_1of3.dump"

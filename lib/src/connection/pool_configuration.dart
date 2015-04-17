@@ -43,6 +43,13 @@ class PoolConfiguration {
    */
   Authenticator authenticator;
 
+  /**
+   * Setting the [preferBiggerTcpPackets] option will join together
+   * protocol frame data before piping them to the underlying TCP socket.
+   * This option will improve performance at the expense of slightly higher memory consumption
+   */
+  bool preferBiggerTcpPackets;
+
   PoolConfiguration({
                     String this.cqlVersion : "3.0.0"
                     , ProtocolVersion this.protocolVersion : ProtocolVersion.V2
@@ -54,6 +61,7 @@ class PoolConfiguration {
                     , bool this.autoDiscoverNodes : true
                     , Compression this.compression
                     , Authenticator this.authenticator
+                    , bool this.preferBiggerTcpPackets : false
                     }) {
 
     validate();

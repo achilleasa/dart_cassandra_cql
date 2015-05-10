@@ -24,4 +24,4 @@ When submitting pull requests try to follow the [Dart Style Guide](https://www.d
 
 Please make sure you submit a unit-test together with your pull request. All unit tests should be placed inside the ```test/lib``` folder. You can add you own unit-tests to the existing test suites or create a new one. If you need to create a new test suite for your PR then make sure you also update the main test runner which is located at ```tests/run_all.dart```.
 
-The project ships with a the ```test/test_coverage.sh``` script for generating html code coverage reports using [dart-lang/coverage](https://github.com/dart-lang/coverage) and LCOV. Due to a [bug](https://github.com/dart-lang/coverage/pull/34) in the current version of dart-lang/coverage you will need to use my own [fork](https://github.com/achilleasa/coverage) to generate the coverage reports.
+The project ships with a the ```test/test_coverage.sh``` script for generating html code coverage reports using [dart-lang/coverage](https://github.com/dart-lang/coverage) and LCOV.

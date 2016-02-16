@@ -6,6 +6,6 @@ homepage: https://github.com/achilleasa/dart_cassandra_cql
 dependencies:
   uuid: ">=0.4.1 <0.5.0"
   collection: ">=1.1.0 <2.0.0"
-  logging: ">=0.9.1+1 <0.10.0"
+  logging: "^0.11.2"
 dev_dependencies:
   unittest: ">=0.11.0+5 <0.12.0"

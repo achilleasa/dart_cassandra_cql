@@ -297,6 +297,19 @@ main({bool enableLogger : true}) {
             })
         );
       });
+
+      test(
+          "it can handle execution of multiple queries scheduled synchronously",
+          () {
+        server.setReplayList(["select_v2.dump", "select_v2.dump"]);
+        var client = new cql.Client.fromHostList(
+            ["${SERVER_HOST}:${SERVER_PORT}"],
+            poolConfig: new cql.PoolConfiguration(autoDiscoverNodes: false));
+        var f1 = client.execute(new cql.Query('SELECT * from test.type_test'));
+        var f2 = client.execute(new cql.Query('SELECT * from test.type_test'));
+
+        expect(Future.wait([f1, f2]), completes);
+      });
     });
 
     group("query:", () {

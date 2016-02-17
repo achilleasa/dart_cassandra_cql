@@ -285,38 +285,6 @@ main({bool enableLogger : true}) {
           .catchError(expectAsync(handleError));
         });
 
-        test("server responds with compressed frame but we have unregistered the codec", () {
-
-          // Register codec for the mock server
-          cql.registerCodec(cql.Compression.SNAPPY.value, new compress.MockCompressionCodec());
-
-          cql.PoolConfiguration config = new cql.PoolConfiguration(
-              protocolVersion : cql.ProtocolVersion.V2
-              , compression : cql.Compression.SNAPPY
-              , streamsPerConnection : 1
-          );
-
-          conn = new cql.Connection("conn-0", SERVER_HOST, SERVER_PORT, config : config);
-
-          void handleError(e) {
-            expect(e.message, equals("A compression codec needs to be registered via registerCodec() for type '${cql.Compression.SNAPPY}'"));
-          }
-
-          conn.open()
-          .then((_) {
-            Future res = conn.execute(new cql.Query("SELECT * from test.type_test"));
-
-            new Timer(new Duration(milliseconds: 10), () {
-              server.replayFile(0, "void_result_v2.dump");
-
-              cql.unregisterCodec(cql.Compression.SNAPPY.value);
-            });
-
-            return res;
-          })
-          .catchError(expectAsync(handleError));
-        });
-
         test("Using a compression codec", () {
           server.setReplayList(["void_result_v2.dump"]);
 

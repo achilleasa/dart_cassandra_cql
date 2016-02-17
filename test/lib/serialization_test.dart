@@ -338,7 +338,7 @@ main({bool enableLogger : true}) {
 
       test("TIMESTAMP", () {
 
-        Object input = new DateTime.now();
+        Object input = new DateTime.fromMillisecondsSinceEpoch(1455746327000);
         TypeSpec type = new TypeSpec(DataType.TIMESTAMP);
         encoder.writeTypedValue('test', input, typeSpec : type, size : size);
         Object output = mock.createDecoder(encoder).readTypedValue(type, size : size);
@@ -559,7 +559,7 @@ main({bool enableLogger : true}) {
         });
 
         test("LIST", () {
-          Object input = [ new DateTime.now(), new DateTime.now() ];
+          Object input = [ new DateTime.fromMillisecondsSinceEpoch(1455746327000), new DateTime.fromMillisecondsSinceEpoch(1455746327000) ];
           TypeSpec type = new TypeSpec(DataType.LIST, valueSubType : new TypeSpec(DataType.TIMESTAMP));
           encoder.writeTypedValue('test', input, typeSpec : type, size : size);
           Object output = mock.createDecoder(encoder).readTypedValue(type, size : size);
@@ -569,8 +569,8 @@ main({bool enableLogger : true}) {
 
         test("MAP", () {
           Object input = {
-              "foo" : new DateTime.now(),
-              "bar" : new DateTime.now()
+              "foo" : new DateTime.fromMillisecondsSinceEpoch(1455746327000),
+              "bar" : new DateTime.fromMillisecondsSinceEpoch(1455746327000)
           };
           TypeSpec type = new TypeSpec(
               DataType.MAP
@@ -669,7 +669,7 @@ main({bool enableLogger : true}) {
 
       test("TIMESTAMP", () {
 
-        Object input = new DateTime.now();
+        Object input = new DateTime.fromMillisecondsSinceEpoch(1455746327000);
         TypeSpec type = new TypeSpec(DataType.TIMESTAMP);
         encoder.writeTypedValue('test', input, typeSpec : type, size : size);
         Object output = mock.createDecoder(encoder).readTypedValue(type, size : size);
@@ -890,7 +890,7 @@ main({bool enableLogger : true}) {
         });
 
         test("LIST", () {
-          Object input = [ new DateTime.now(), new DateTime.now() ];
+          Object input = [ new DateTime.fromMillisecondsSinceEpoch(1455746327000), new DateTime.fromMillisecondsSinceEpoch(1455746327000) ];
           TypeSpec type = new TypeSpec(DataType.LIST, valueSubType : new TypeSpec(DataType.TIMESTAMP));
           encoder.writeTypedValue('test', input, typeSpec : type, size : size);
           Object output = mock.createDecoder(encoder).readTypedValue(type, size : size);
@@ -900,8 +900,8 @@ main({bool enableLogger : true}) {
 
         test("MAP", () {
           Object input = {
-              "foo" : new DateTime.now(),
-              "bar" : new DateTime.now()
+              "foo" : new DateTime.fromMillisecondsSinceEpoch(1455746327000),
+              "bar" : new DateTime.fromMillisecondsSinceEpoch(1455746327000)
           };
           TypeSpec type = new TypeSpec(
               DataType.MAP
@@ -930,7 +930,7 @@ main({bool enableLogger : true}) {
             ]
             , "tags" : {
                 "home" : {
-                    "when" : new DateTime.now()
+                    "when" : new DateTime.fromMillisecondsSinceEpoch(1455746327000)
                     , "labels" : [ "red", "green", "blue" ]
                 }
             }
@@ -957,7 +957,7 @@ main({bool enableLogger : true}) {
       });
 
       test("TUPLE", () {
-        Object input = new Tuple.fromIterable(["Test", 3.14, new DateTime.now()]);
+        Object input = new Tuple.fromIterable(["Test", 3.14, new DateTime.fromMillisecondsSinceEpoch(1455746327000)]);
         TypeSpec type = new TypeSpec(DataType.TUPLE)
           ..tupleFields.add(new TypeSpec(DataType.TEXT))
           ..tupleFields.add(new TypeSpec(DataType.DOUBLE))

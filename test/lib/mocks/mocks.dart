@@ -93,6 +93,7 @@ class MockServer {
   List<String> _replayAuthDumpFileList;
   String _pathToDumps;
   Duration responseDelay;
+  Future _replayFuture = new Future.value();
 
   MockServer() {
     List<String> pathSegments = Platform.script.pathSegments.getRange(0, Platform.script.pathSegments.length - 1).toList();
@@ -112,6 +113,7 @@ class MockServer {
       mockLogger.info("Shutting down server [${_server.address}:${_server.port}]");
 
       List<Future> cleanupFutures = []
+	..add(_replayFuture)
         ..addAll(clients.map((Socket client) => new Future.value(client.destroy())))
         ..add(_server.close().then((_) => new Future.delayed(new Duration(milliseconds:20), () => true)));
 
@@ -210,9 +212,11 @@ class MockServer {
 
     }
 
-    return responseDelay != null
+    return _replayFuture.then((_){
+		return responseDelay != null
            ? new Future.delayed(responseDelay, onReplay)
            : onReplay();
+		});
   }
 
   Future listen(String host, int port) {
@@ -253,10 +257,10 @@ class MockServer {
       writeMessage(client, Opcode.READY.value, streamId : frame.header.streamId);
     } else if (_replayAuthDumpFileList != null && !_replayAuthDumpFileList.isEmpty) {
       // Respond with the next payload in replay list
-      replayFile(clients.indexOf(client), _replayAuthDumpFileList.removeAt(0), frame.header.streamId);
+      _replayFuture = replayFile(clients.indexOf(client), _replayAuthDumpFileList.removeAt(0), frame.header.streamId);
     } else if (_replayDumpFileList != null && !_replayDumpFileList.isEmpty) {
       // Respond with the next payload in replay list
-      replayFile(clients.indexOf(client), _replayDumpFileList.removeAt(0), frame.header.streamId);
+      _replayFuture = replayFile(clients.indexOf(client), _replayDumpFileList.removeAt(0), frame.header.streamId);
     }
   }
 

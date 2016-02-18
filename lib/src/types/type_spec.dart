@@ -16,13 +16,23 @@ class TypeSpec {
   // V3 protocol: TUPLE
   List<TypeSpec> tupleFields;
 
-  TypeSpec(DataType this.valueType, {TypeSpec this.keySubType, TypeSpec this.valueSubType}) {
-    if (valueType == DataType.LIST && (valueSubType == null || valueSubType is! TypeSpec) ) {
-      throw new ArgumentError("LIST type should specify a TypeSpec instance for its values");
-    } else if (valueType == DataType.SET && (valueSubType == null || valueSubType is! TypeSpec) ) {
-      throw new ArgumentError("SET type should specify a TypeSpec instance for its values");
-    } else if (valueType == DataType.MAP && (keySubType == null || keySubType is! TypeSpec || valueSubType == null || valueSubType is! TypeSpec) ) {
-      throw new ArgumentError("MAP type should specify TypeSpec instances for both its keys and values");
+  TypeSpec(DataType this.valueType,
+      {TypeSpec this.keySubType, TypeSpec this.valueSubType}) {
+    if (valueType == DataType.LIST &&
+        (valueSubType == null || valueSubType is! TypeSpec)) {
+      throw new ArgumentError(
+          "LIST type should specify a TypeSpec instance for its values");
+    } else if (valueType == DataType.SET &&
+        (valueSubType == null || valueSubType is! TypeSpec)) {
+      throw new ArgumentError(
+          "SET type should specify a TypeSpec instance for its values");
+    } else if (valueType == DataType.MAP &&
+        (keySubType == null ||
+            keySubType is! TypeSpec ||
+            valueSubType == null ||
+            valueSubType is! TypeSpec)) {
+      throw new ArgumentError(
+          "MAP type should specify TypeSpec instances for both its keys and values");
     } else if (valueType == DataType.UDT) {
       udtFields = new LinkedHashMap<String, TypeSpec>();
     } else if (valueType == DataType.TUPLE) {

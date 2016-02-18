@@ -8,7 +8,7 @@ class PreparedResultMessage extends ResultMessage {
   String host;
   int port;
 
-  PreparedResultMessage.parse(TypeDecoder decoder){
+  PreparedResultMessage.parse(TypeDecoder decoder) {
     queryId = decoder.readBytes(SizeType.SHORT);
     metadata = _parseMetadata(decoder);
   }

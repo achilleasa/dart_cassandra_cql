@@ -1,14 +1,14 @@
 part of dart_cassandra_cql.protocol;
 
 class FrameReader {
+  StreamTransformer<Frame, Message> get transformer =>
+      new StreamTransformer<Frame, Message>.fromHandlers(
+          handleData: handleData,
+          handleDone: handleDone,
+          handleError: handleError);
 
-  StreamTransformer<Frame, Message> get transformer => new StreamTransformer<Frame, Message>.fromHandlers(
-      handleData: handleData,
-      handleDone: handleDone,
-      handleError : handleError
-  );
-
-  void handleError(Object error, StackTrace stackTrace, EventSink<Message> sink) {
+  void handleError(
+      Object error, StackTrace stackTrace, EventSink<Message> sink) {
     // If this is a wrapped ExceptionMessage add it to the sink; otherwise add it as an error
     if (error is ExceptionMessage) {
       sink.add(error);
@@ -23,7 +23,8 @@ class FrameReader {
 
   void handleData(Frame frame, EventSink<Message> sink) {
     try {
-      TypeDecoder decoder = new TypeDecoder.fromBuffer(frame.body, frame.getProtocolVersion());
+      TypeDecoder decoder =
+          new TypeDecoder.fromBuffer(frame.body, frame.getProtocolVersion());
       Message message = null;
       switch (frame.header.opcode) {
         case Opcode.AUTHENTICATE:
@@ -63,5 +64,4 @@ class FrameReader {
       sink.add(message);
     }
   }
-
 }

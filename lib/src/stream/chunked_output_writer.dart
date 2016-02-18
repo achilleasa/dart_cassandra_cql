@@ -1,7 +1,6 @@
 part of dart_cassandra_cql.stream;
 
 class ChunkedOutputWriter {
-
   final ListQueue<Uint8List> _bufferedChunks = new ListQueue<Uint8List>();
 
   /**
@@ -32,9 +31,8 @@ class ChunkedOutputWriter {
    * Get the total available bytes in all chunk buffers (excluding bytes already de-queued from head buffer).
    */
 
-  int get lengthInBytes => _bufferedChunks.fold(
-      0, (int count, el) => count + el.length
-  );
+  int get lengthInBytes =>
+      _bufferedChunks.fold(0, (int count, el) => count + el.length);
 
   /**
    * Get back the [ListQueue<Uint8List>] of written chunks
@@ -49,11 +47,11 @@ class ChunkedOutputWriter {
    * and should improve performance at the expense of a slightly higher memory usage
    */
 
-  void pipe(Sink destination, {bool preferBiggerTcpPackets : false}) {
+  void pipe(Sink destination, {bool preferBiggerTcpPackets: false}) {
     if (destination == null) {
       return;
     }
-    if( preferBiggerTcpPackets ){
+    if (preferBiggerTcpPackets) {
       destination.add(joinChunks());
     } else {
       _bufferedChunks.forEach((Uint8List block) => destination.add(block));

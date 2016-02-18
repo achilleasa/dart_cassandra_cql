@@ -14,13 +14,21 @@ class EventType extends Enum<String> {
   String toString() => value;
 
   static EventType valueOf(String value) {
-    EventType fromValue = value == NODE_ADDED.value ? NODE_ADDED :
-                          value == NODE_REMOVED.value ? NODE_REMOVED :
-                          value == NODE_UP.value ? NODE_UP :
-                          value == NODE_DOWN.value ? NODE_DOWN :
-                          value == SCHEMA_CREATED.value ? SCHEMA_CREATED :
-                          value == SCHEMA_UPDATED.value ? SCHEMA_UPDATED :
-                          value == SCHEMA_DROPPED.value ? SCHEMA_DROPPED : null;
+    EventType fromValue = value == NODE_ADDED.value
+        ? NODE_ADDED
+        : value == NODE_REMOVED.value
+            ? NODE_REMOVED
+            : value == NODE_UP.value
+                ? NODE_UP
+                : value == NODE_DOWN.value
+                    ? NODE_DOWN
+                    : value == SCHEMA_CREATED.value
+                        ? SCHEMA_CREATED
+                        : value == SCHEMA_UPDATED.value
+                            ? SCHEMA_UPDATED
+                            : value == SCHEMA_DROPPED.value
+                                ? SCHEMA_DROPPED
+                                : null;
 
     if (fromValue == null) {
       throw new ArgumentError("Invalid event value ${value}");
@@ -29,15 +37,20 @@ class EventType extends Enum<String> {
   }
 
   static String nameOf(EventType value) {
-    String nameValue = value == NODE_ADDED ? "NODE_ADDED" :
-                       value == NODE_REMOVED ? "NODE_REMOVED" :
-                       value == NODE_UP ? "NODE_UP" :
-                       value == NODE_DOWN ? "NODE_DOWN" :
-                       value == SCHEMA_CREATED ? "SCHEMA_CREATED" :
-                       value == SCHEMA_UPDATED ? "SCHEMA_UPDATED" :
-                       value == SCHEMA_DROPPED ? "SCHEMA_DROPPED" : null;
+    String nameValue = value == NODE_ADDED
+        ? "NODE_ADDED"
+        : value == NODE_REMOVED
+            ? "NODE_REMOVED"
+            : value == NODE_UP
+                ? "NODE_UP"
+                : value == NODE_DOWN
+                    ? "NODE_DOWN"
+                    : value == SCHEMA_CREATED
+                        ? "SCHEMA_CREATED"
+                        : value == SCHEMA_UPDATED
+                            ? "SCHEMA_UPDATED"
+                            : value == SCHEMA_DROPPED ? "SCHEMA_DROPPED" : null;
 
     return nameValue;
   }
-
 }

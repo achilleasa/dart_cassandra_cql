@@ -8,5 +8,5 @@ class ExceptionMessage extends Message {
   dynamic exception;
   StackTrace stackTrace;
 
-  ExceptionMessage(this.exception, this.stackTrace) : super( Opcode.ERROR );
+  ExceptionMessage(this.exception, this.stackTrace) : super(Opcode.ERROR);
 }

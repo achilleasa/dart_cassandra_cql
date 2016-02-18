@@ -1,7 +1,6 @@
 part of dart_cassandra_cql.connection;
 
 class PoolConfiguration {
-
   // The CQL version to use
   String cqlVersion;
 
@@ -50,20 +49,18 @@ class PoolConfiguration {
    */
   bool preferBiggerTcpPackets;
 
-  PoolConfiguration({
-                    String this.cqlVersion : "3.0.0"
-                    , ProtocolVersion this.protocolVersion : ProtocolVersion.V2
-                    , int this.connectionsPerHost : 1
-                    , int this.streamsPerConnection : 128
-                    , int this.maxConnectionAttempts : 10
-                    , Duration this.reconnectWaitTime : const Duration(milliseconds : 1500)
-                    , Duration this.streamReservationTimeout : const Duration(milliseconds: 0)
-                    , bool this.autoDiscoverNodes : true
-                    , Compression this.compression
-                    , Authenticator this.authenticator
-                    , bool this.preferBiggerTcpPackets : false
-                    }) {
-
+  PoolConfiguration(
+      {String this.cqlVersion: "3.0.0",
+      ProtocolVersion this.protocolVersion: ProtocolVersion.V2,
+      int this.connectionsPerHost: 1,
+      int this.streamsPerConnection: 128,
+      int this.maxConnectionAttempts: 10,
+      Duration this.reconnectWaitTime: const Duration(milliseconds: 1500),
+      Duration this.streamReservationTimeout: const Duration(milliseconds: 0),
+      bool this.autoDiscoverNodes: true,
+      Compression this.compression,
+      Authenticator this.authenticator,
+      bool this.preferBiggerTcpPackets: false}) {
     validate();
   }
 
@@ -74,22 +71,27 @@ class PoolConfiguration {
 
   void validate() {
     // We only support protocol version V2 and V3
-    if (protocolVersion != ProtocolVersion.V2 && protocolVersion != ProtocolVersion.V3) {
+    if (protocolVersion != ProtocolVersion.V2 &&
+        protocolVersion != ProtocolVersion.V3) {
       throw new ArgumentError("Driver only supports protocol versions 2 and 3");
     }
 
     // According to the protocol spec, each connection can multiplex up to 128 streams (V2) or 32768 (V3)
-    if (protocolVersion == ProtocolVersion.V2 && (streamsPerConnection <= 0 || streamsPerConnection > 128)) {
-      throw new ArgumentError("Invalid value for option 'streamsPerConnection'. Expected a value between 1 and 128 when using V2 prototcol");
+    if (protocolVersion == ProtocolVersion.V2 &&
+        (streamsPerConnection <= 0 || streamsPerConnection > 128)) {
+      throw new ArgumentError(
+          "Invalid value for option 'streamsPerConnection'. Expected a value between 1 and 128 when using V2 prototcol");
     }
-    if (protocolVersion == ProtocolVersion.V3 && (streamsPerConnection <= 0 || streamsPerConnection > 32768)) {
-      throw new ArgumentError("Invalid value for option 'streamsPerConnection'. Expected a value between 1 and 3768 when using V3 prototcol");
+    if (protocolVersion == ProtocolVersion.V3 &&
+        (streamsPerConnection <= 0 || streamsPerConnection > 32768)) {
+      throw new ArgumentError(
+          "Invalid value for option 'streamsPerConnection'. Expected a value between 1 and 3768 when using V3 prototcol");
     }
 
     // If a compression algorithm is specified make sure the appropriate codec is registered
     if (compression != null && getCodec(compression.value) == null) {
-      throw new ArgumentError("A compression codec needs to be registered via registerCodec() for type '${compression}'");
+      throw new ArgumentError(
+          "A compression codec needs to be registered via registerCodec() for type '${compression}'");
     }
   }
-
 }

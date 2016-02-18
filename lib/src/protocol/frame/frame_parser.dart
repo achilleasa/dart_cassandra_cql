@@ -1,7 +1,6 @@
 part of dart_cassandra_cql.protocol;
 
 class FrameParser {
-
   final ChunkedInputReader _inputBuffer = new ChunkedInputReader();
   FrameHeader _parsedHeader;
   Uint8List _bodyData;
@@ -18,7 +17,6 @@ class FrameParser {
 
       // Are we extracting header bytes?
       if (_parsedHeader == null) {
-
         if (_headerSizeInBytes == null) {
           // Peek the first byte to figure out the version
           int version = _inputBuffer.peekNextByte();
@@ -27,14 +25,15 @@ class FrameParser {
             _headerSizeInBytes = FrameHeader.SIZE_IN_BYTES_V2;
             _protocolVersion = ProtocolVersion.V2;
           } else if (version == HeaderVersion.RESPONSE_V3.value ||
-                     version == HeaderVersion.REQUEST_V3.value) {
+              version == HeaderVersion.REQUEST_V3.value) {
             _headerSizeInBytes = FrameHeader.SIZE_IN_BYTES_V3;
             _protocolVersion = ProtocolVersion.V3;
           }
         }
 
         // Not enough bytes to parse header; wait till we get more
-        if (_headerSizeInBytes == null || _inputBuffer.length < _headerSizeInBytes) {
+        if (_headerSizeInBytes == null ||
+            _inputBuffer.length < _headerSizeInBytes) {
           return;
         }
 
@@ -43,11 +42,14 @@ class FrameParser {
         _inputBuffer.read(headerBytes, _headerSizeInBytes);
         //dump = new File("${new DateTime.now()}.dump");
         //dump.writeAsBytesSync(headerBytes);
-        _parsedHeader = new TypeDecoder.fromBuffer(new ByteData.view(headerBytes.buffer), _protocolVersion).readHeader();
+        _parsedHeader = new TypeDecoder.fromBuffer(
+                new ByteData.view(headerBytes.buffer), _protocolVersion)
+            .readHeader();
         headerBytes = null;
 
         if (_parsedHeader.length > FrameHeader.MAX_LENGTH_IN_BYTES) {
-          throw new DriverException("Frame size cannot be larger than ${FrameHeader.MAX_LENGTH_IN_BYTES} bytes. Attempted to read ${_parsedHeader.length} bytes");
+          throw new DriverException(
+              "Frame size cannot be larger than ${FrameHeader.MAX_LENGTH_IN_BYTES} bytes. Attempted to read ${_parsedHeader.length} bytes");
         }
 
         // Allocate buffer for body and reset write offset
@@ -55,18 +57,20 @@ class FrameParser {
         _bodyWriteOffset = 0;
       } else {
         // Copy pending body data
-        _bodyWriteOffset += _inputBuffer.read(_bodyData, _parsedHeader.length - _bodyWriteOffset, _bodyWriteOffset);
+        _bodyWriteOffset += _inputBuffer.read(_bodyData,
+            _parsedHeader.length - _bodyWriteOffset, _bodyWriteOffset);
       }
 
       // If we are done emit the frame to the next pipeline stage and cleanup
       if (_bodyWriteOffset == _parsedHeader.length) {
         // Ignore messages with unknown opcodes
         if (_parsedHeader.opcode != null) {
-
           //dump.writeAsBytesSync(_bodyData, mode : FileMode.APPEND);
-          sink.add(new Frame.fromParts(_parsedHeader, new ByteData.view(_bodyData.buffer)));
+          sink.add(new Frame.fromParts(
+              _parsedHeader, new ByteData.view(_bodyData.buffer)));
         } else {
-          throw new DriverException("Unknown frame with opcode 0x${_parsedHeader.unknownOpcodeValue.toRadixString(16)} and payload size 0x${_parsedHeader.length}");
+          throw new DriverException(
+              "Unknown frame with opcode 0x${_parsedHeader.unknownOpcodeValue.toRadixString(16)} and payload size 0x${_parsedHeader.length}");
         }
         _parsedHeader = null;
         _headerSizeInBytes = null;
@@ -80,14 +84,9 @@ class FrameParser {
         handleData(null, sink);
       }
     } catch (e, trace) {
-
       // / Emit an exception message
-      ExceptionMessage message = new ExceptionMessage(
-          e
-          , e is DriverException && e.stackTrace != null
-            ? e.stackTrace
-            : trace
-      );
+      ExceptionMessage message = new ExceptionMessage(e,
+          e is DriverException && e.stackTrace != null ? e.stackTrace : trace);
       message.streamId = _parsedHeader.streamId;
 
       _parsedHeader = null;
@@ -107,10 +106,9 @@ class FrameParser {
     sink.addError(error, stackTrace);
   }
 
-  StreamTransformer<List<int>, Frame> get transformer => new StreamTransformer<List<int>, Frame>.fromHandlers(
-      handleData: handleData,
-      handleDone: handleDone,
-      handleError: handleError
-  );
-
+  StreamTransformer<List<int>, Frame> get transformer =>
+      new StreamTransformer<List<int>, Frame>.fromHandlers(
+          handleData: handleData,
+          handleDone: handleDone,
+          handleError: handleError);
 }

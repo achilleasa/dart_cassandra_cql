@@ -1,7 +1,6 @@
 part of dart_cassandra_cql.stream;
 
 class ChunkedInputReader {
-
   final _bufferedChunks = new ListQueue<List<int>>();
   int _usedHeadBytes = 0;
 
@@ -22,9 +21,7 @@ class ChunkedInputReader {
    */
 
   int get length => _bufferedChunks.fold(
-      -_usedHeadBytes,
-          (int count, List<int> el) => count + el.length
-  );
+      -_usedHeadBytes, (int count, List<int> el) => count + el.length);
 
   /**
    * Return the next byte in the buffer without modifying the read pointer.
@@ -47,7 +44,6 @@ class ChunkedInputReader {
    */
 
   int read(List<int> destination, int count, [int offset = 0]) {
-
     int writeOffset = offset;
     while (count > 0) {
       // If we ran out of buffers we are done
@@ -63,13 +59,15 @@ class ChunkedInputReader {
 
       // If the remaining head buffer can fill the destination entirely, copy it and de-queue head
       if (remainingHeadBytes <= count) {
-        destination.setRange(writeOffset, writeOffset + remainingHeadBytes, _bufferedChunks.removeFirst(), _usedHeadBytes);
+        destination.setRange(writeOffset, writeOffset + remainingHeadBytes,
+            _bufferedChunks.removeFirst(), _usedHeadBytes);
         _usedHeadBytes = 0;
         count -= remainingHeadBytes;
         writeOffset += remainingHeadBytes;
       } else {
         // Copy as much as we can skipping any already dequeued bytes
-        destination.setRange(writeOffset, writeOffset + count, _bufferedChunks.first, _usedHeadBytes);
+        destination.setRange(writeOffset, writeOffset + count,
+            _bufferedChunks.first, _usedHeadBytes);
         _usedHeadBytes += count;
         writeOffset += count;
         count = 0;
@@ -86,7 +84,6 @@ class ChunkedInputReader {
    */
 
   int skip(int count) {
-
     int skippedBytesCount = 0;
     while (count > 0) {
       // If we ran out of buffers we are done

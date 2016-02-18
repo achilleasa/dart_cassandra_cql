@@ -1,7 +1,6 @@
 part of dart_cassandra_cql.types;
 
 class FrameHeader {
-
   static const int SIZE_IN_BYTES_V2 = 8;
   static const int SIZE_IN_BYTES_V3 = 9;
   static const int MAX_LENGTH_IN_BYTES = 268435456; // 256MB (see spec)

@@ -4,14 +4,13 @@ import "dart:typed_data";
 import "dart:convert";
 
 class RotConverter extends Converter<Uint8List, Uint8List> {
-
   final bool throwOnConvert;
   final int _key;
 
   const RotConverter(this._key, this.throwOnConvert);
 
   Uint8List convert(Uint8List input) {
-    if( throwOnConvert ){
+    if (throwOnConvert) {
       throw new Exception("Something has gone awfully wrong...");
     }
     Uint8List result = new Uint8List(input.length);
@@ -25,7 +24,6 @@ class RotConverter extends Converter<Uint8List, Uint8List> {
 }
 
 class MockCompressionCodec extends Codec<Uint8List, Uint8List> {
-
   bool throwOnEncode;
   bool throwOnDecode;
 
@@ -33,7 +31,8 @@ class MockCompressionCodec extends Codec<Uint8List, Uint8List> {
   RotConverter _encoder;
   RotConverter _decoder;
 
-  MockCompressionCodec([this.throwOnEncode = false, this.throwOnDecode = false]) {
+  MockCompressionCodec(
+      [this.throwOnEncode = false, this.throwOnDecode = false]) {
     _encoder = new RotConverter(13, throwOnEncode);
     _decoder = new RotConverter(-13, throwOnDecode);
   }
@@ -45,5 +44,4 @@ class MockCompressionCodec extends Codec<Uint8List, Uint8List> {
   Converter<Uint8List, Uint8List> get decoder {
     return _decoder;
   }
-
 }

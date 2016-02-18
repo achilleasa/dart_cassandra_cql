@@ -6,7 +6,6 @@ class AuthResponseMessage extends Message implements RequestMessage {
   AuthResponseMessage() : super(Opcode.AUTH_RESPONSE);
 
   void write(TypeEncoder encoder) {
-
     encoder.writeBytes(responsePayload, SizeType.LONG);
   }
 }

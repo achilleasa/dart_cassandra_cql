@@ -6,9 +6,7 @@ class PrepareMessage extends Message implements RequestMessage {
   PrepareMessage() : super(Opcode.PREPARE);
 
   void write(TypeEncoder encoder) {
-
     // Send the query as a long string
     encoder.writeString(query, SizeType.LONG);
   }
-
 }

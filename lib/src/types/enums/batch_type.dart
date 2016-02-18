@@ -8,5 +8,4 @@ class BatchType extends Enum<int> {
   const BatchType._(int value) : super(value);
 
   String toString() => "0x${value.toRadixString(16)}";
-
 }

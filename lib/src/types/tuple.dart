@@ -6,6 +6,5 @@ part of dart_cassandra_cql.types;
  * during serialization
  */
 class Tuple extends _wrappers.DelegatingList<Object> {
-
   Tuple.fromIterable(Iterable iterable) : super(iterable);
 }

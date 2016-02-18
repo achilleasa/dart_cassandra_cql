@@ -1,11 +1,11 @@
 part of dart_cassandra_cql.connection;
 
 abstract class ConnectionPool {
-
   static final int DEFAULT_PORT = 9042;
 
   PoolConfiguration poolConfig;
-  StreamController<EventMessage> _eventStreamController = new StreamController<EventMessage>.broadcast();
+  StreamController<EventMessage> _eventStreamController =
+      new StreamController<EventMessage>.broadcast();
 
   /**
    * Establish connections to the pool nodes and return a [Future] to be successfully completed when
@@ -20,7 +20,8 @@ abstract class ConnectionPool {
    * when all connections are drained or when the [drainTimeout] expires. If [drain] is false then
    * the returned [Future] will already be completed.
    */
-  Future disconnect({ bool drain : true, Duration drainTimeout : const Duration( seconds : 5 )});
+  Future disconnect(
+      {bool drain: true, Duration drainTimeout: const Duration(seconds: 5)});
 
   /**
    * Get back an active [Connection] from the pool.
@@ -35,8 +36,10 @@ abstract class ConnectionPool {
   /**
    * Return a [Stream<EventMessage>] where the application can listen for the requested [eventTypes].
    */
-  Stream<EventMessage> listenForServerEvents(List<EventRegistrationType> eventTypes) {
+  Stream<EventMessage> listenForServerEvents(
+      List<EventRegistrationType> eventTypes) {
     // Return back a stream filtered by the given event types
-    return _eventStreamController.stream.where((EventMessage e) => eventTypes.contains(e.type));
+    return _eventStreamController.stream
+        .where((EventMessage e) => eventTypes.contains(e.type));
   }
 }

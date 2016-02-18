@@ -4,8 +4,7 @@ import "package:unittest/unittest.dart";
 
 import '../../lib/src/stream.dart';
 
-main({bool enableLogger : true}) {
-
+main({bool enableLogger: true}) {
   group("Chunked input reader:", () {
     test("add chunks", () {
       ChunkedInputReader reader = new ChunkedInputReader();
@@ -62,7 +61,6 @@ main({bool enableLogger : true}) {
       reader.read(buffer, 2);
       expect(reader.length, equals(0));
       expect(buffer, equals([4, 5]));
-
     });
   });
 }

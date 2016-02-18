@@ -12,16 +12,20 @@ class ResultType extends Enum<int> {
   String toString() => "0x${value.toRadixString(16)}";
 
   static ResultType valueOf(int value) {
-    ResultType fromValue = value == VOID._value ? VOID :
-                           value == ROWS._value ? ROWS :
-                           value == SET_KEYSPACE._value ? SET_KEYSPACE :
-                           value == PREPARED._value ? PREPARED :
-                           value == SCHEMA_CHANGE._value ? SCHEMA_CHANGE : null;
+    ResultType fromValue = value == VOID._value
+        ? VOID
+        : value == ROWS._value
+            ? ROWS
+            : value == SET_KEYSPACE._value
+                ? SET_KEYSPACE
+                : value == PREPARED._value
+                    ? PREPARED
+                    : value == SCHEMA_CHANGE._value ? SCHEMA_CHANGE : null;
 
     if (fromValue == null) {
-      throw new ArgumentError("Invalid result type value 0x${value.toRadixString(16)}");
+      throw new ArgumentError(
+          "Invalid result type value 0x${value.toRadixString(16)}");
     }
     return fromValue;
   }
-
 }

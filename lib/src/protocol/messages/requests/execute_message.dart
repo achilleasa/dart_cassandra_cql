@@ -15,12 +15,11 @@ class ExecuteMessage extends QueryMessage implements RequestMessage {
    */
 
   void _writeBindings(TypeEncoder encoder) {
-
     if (bindings is Map) {
       Map bindingsMap = bindings as Map;
       encoder.writeUInt16(bindingsMap.length);
       bindingsMap.forEach((String arg, Object value) {
-        encoder.writeTypedValue(arg, value, typeSpec : bindingTypes[arg]);
+        encoder.writeTypedValue(arg, value, typeSpec: bindingTypes[arg]);
       });
     } else {
       Iterable<TypeSpec> bindingTypeList = bindingTypes.values;
@@ -29,13 +28,13 @@ class ExecuteMessage extends QueryMessage implements RequestMessage {
 
       int arg = 0;
       bindingsList.forEach((Object value) {
-        encoder.writeTypedValue("$arg", value, typeSpec : bindingTypeList.elementAt(arg++));
+        encoder.writeTypedValue("$arg", value,
+            typeSpec: bindingTypeList.elementAt(arg++));
       });
     }
   }
 
   void write(TypeEncoder encoder) {
-
     // Write queryId
     encoder.writeBytes(queryId, SizeType.SHORT);
 

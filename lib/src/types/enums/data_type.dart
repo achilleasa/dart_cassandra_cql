@@ -1,7 +1,9 @@
 part of dart_cassandra_cql.types;
 
 class DataType extends Enum<int> {
-  static final RegExp _UUID_REGEX = new RegExp(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", caseSensitive : false);
+  static final RegExp _UUID_REGEX = new RegExp(
+      r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      caseSensitive: false);
 
   static const DataType CUSTOM = const DataType._(0x0000);
   static const DataType ASCII = const DataType._(0x0001);
@@ -35,58 +37,102 @@ class DataType extends Enum<int> {
   get isCollection => this == LIST || this == SET || this == MAP;
 
   static DataType valueOf(int value) {
-    DataType fromValue = value == CUSTOM._value ? CUSTOM :
-                         value == ASCII._value ? ASCII :
-                         value == BIGINT._value ? BIGINT :
-                         value == BLOB._value ? BLOB :
-                         value == BOOLEAN._value ? BOOLEAN :
-                         value == COUNTER._value ? COUNTER :
-                         value == DECIMAL._value ? DECIMAL :
-                         value == DOUBLE._value ? DOUBLE :
-                         value == FLOAT._value ? FLOAT :
-                         value == INT._value ? INT :
-                         value == TEXT._value ? TEXT :
-                         value == TIMESTAMP._value ? TIMESTAMP :
-                         value == UUID._value ? UUID :
-                         value == VARCHAR._value ? VARCHAR :
-                         value == VARINT._value ? VARINT :
-                         value == TIMEUUID._value ? TIMEUUID :
-                         value == INET._value ? INET :
-                         value == LIST._value ? LIST :
-                         value == MAP._value ? MAP :
-                         value == SET._value ? SET :
-                         value == UDT._value ? UDT :
-                         value == TUPLE._value ? TUPLE : null;
+    DataType fromValue = value == CUSTOM._value
+        ? CUSTOM
+        : value == ASCII._value
+            ? ASCII
+            : value == BIGINT._value
+                ? BIGINT
+                : value == BLOB._value
+                    ? BLOB
+                    : value == BOOLEAN._value
+                        ? BOOLEAN
+                        : value == COUNTER._value
+                            ? COUNTER
+                            : value == DECIMAL._value
+                                ? DECIMAL
+                                : value == DOUBLE._value
+                                    ? DOUBLE
+                                    : value == FLOAT._value
+                                        ? FLOAT
+                                        : value == INT._value
+                                            ? INT
+                                            : value == TEXT._value
+                                                ? TEXT
+                                                : value == TIMESTAMP._value
+                                                    ? TIMESTAMP
+                                                    : value == UUID._value
+                                                        ? UUID
+                                                        : value == VARCHAR._value
+                                                            ? VARCHAR
+                                                            : value ==
+                                                                    VARINT
+                                                                        ._value
+                                                                ? VARINT
+                                                                : value ==
+                                                                        TIMEUUID
+                                                                            ._value
+                                                                    ? TIMEUUID
+                                                                    : value ==
+                                                                            INET._value
+                                                                        ? INET
+                                                                        : value ==
+                                                                                LIST._value
+                                                                            ? LIST
+                                                                            : value == MAP._value
+                                                                                ? MAP
+                                                                                : value == SET._value ? SET : value == UDT._value ? UDT : value == TUPLE._value ? TUPLE : null;
 
     if (fromValue == null) {
-      throw new ArgumentError("Invalid datatype value 0x${value.toRadixString(16)}");
+      throw new ArgumentError(
+          "Invalid datatype value 0x${value.toRadixString(16)}");
     }
     return fromValue;
   }
 
   static String nameOf(DataType value) {
-    String name = value == CUSTOM ? "CUSTOM" :
-                  value == ASCII ? "ASCII" :
-                  value == BIGINT ? "BIGINT" :
-                  value == BLOB ? "BLOB" :
-                  value == BOOLEAN ? "BOOLEAN" :
-                  value == COUNTER ? "COUNTER" :
-                  value == DECIMAL ? "DECIMAL" :
-                  value == DOUBLE ? "DOUBLE" :
-                  value == FLOAT ? "FLOAT" :
-                  value == INT ? "INT" :
-                  value == TEXT ? "TEXT" :
-                  value == TIMESTAMP ? "TIMESTAMP" :
-                  value == UUID ? "UUID" :
-                  value == VARCHAR ? "VARCHAR" :
-                  value == VARINT ? "VARINT" :
-                  value == TIMEUUID ? "TIMEUUID" :
-                  value == INET ? "INET" :
-                  value == LIST ? "LIST" :
-                  value == MAP ? "MAP" :
-                  value == SET ? "SET" :
-                  value == UDT ? "UDT" :
-                  value == TUPLE ? "TUPLE" : null;
+    String name = value == CUSTOM
+        ? "CUSTOM"
+        : value == ASCII
+            ? "ASCII"
+            : value == BIGINT
+                ? "BIGINT"
+                : value == BLOB
+                    ? "BLOB"
+                    : value == BOOLEAN
+                        ? "BOOLEAN"
+                        : value == COUNTER
+                            ? "COUNTER"
+                            : value == DECIMAL
+                                ? "DECIMAL"
+                                : value == DOUBLE
+                                    ? "DOUBLE"
+                                    : value == FLOAT
+                                        ? "FLOAT"
+                                        : value == INT
+                                            ? "INT"
+                                            : value == TEXT
+                                                ? "TEXT"
+                                                : value == TIMESTAMP
+                                                    ? "TIMESTAMP"
+                                                    : value == UUID
+                                                        ? "UUID"
+                                                        : value == VARCHAR
+                                                            ? "VARCHAR"
+                                                            : value == VARINT
+                                                                ? "VARINT"
+                                                                : value ==
+                                                                        TIMEUUID
+                                                                    ? "TIMEUUID"
+                                                                    : value ==
+                                                                            INET
+                                                                        ? "INET"
+                                                                        : value ==
+                                                                                LIST
+                                                                            ? "LIST"
+                                                                            : value == MAP
+                                                                                ? "MAP"
+                                                                                : value == SET ? "SET" : value == UDT ? "UDT" : value == TUPLE ? "TUPLE" : null;
     return name;
   }
 
@@ -100,11 +146,11 @@ class DataType extends Enum<int> {
       return BOOLEAN;
     } else if (value is int) {
       int v = value;
-      return v.bitLength <= 32 ? INT :
-             v.bitLength <= 64 ? BIGINT : VARINT;
+      return v.bitLength <= 32 ? INT : v.bitLength <= 64 ? BIGINT : VARINT;
     } else if (value is num) {
       return DOUBLE;
-    } else if (value is Uuid || (value is String && _UUID_REGEX.hasMatch(value))) {
+    } else if (value is Uuid ||
+        (value is String && _UUID_REGEX.hasMatch(value))) {
       return UUID;
     } else if (value is String) {
       return VARCHAR;
@@ -126,5 +172,4 @@ class DataType extends Enum<int> {
 
     return null;
   }
-
 }

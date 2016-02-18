@@ -1,7 +1,6 @@
 part of dart_cassandra_cql.stream;
 
 class SizeType extends Enum<int> {
-
   static const SizeType BYTE = const SizeType._(1);
   static const SizeType SHORT = const SizeType._(2);
   static const SizeType LONG = const SizeType._(4);
@@ -12,7 +11,6 @@ class SizeType extends Enum<int> {
 int DECIMAL_FRACTION_DIGITS = 6;
 
 class TypeEncoder {
-
   // Cassandra spec specifies NULL as the short int value -1
   static const int CASSANDRA_NULL = -1;
 
@@ -22,10 +20,9 @@ class TypeEncoder {
 
   ProtocolVersion protocolVersion;
 
-  TypeEncoder(ProtocolVersion this.protocolVersion, {ChunkedOutputWriter withWriter : null}) {
-    _writer = withWriter == null
-              ? new ChunkedOutputWriter()
-              : withWriter;
+  TypeEncoder(ProtocolVersion this.protocolVersion,
+      {ChunkedOutputWriter withWriter: null}) {
+    _writer = withWriter == null ? new ChunkedOutputWriter() : withWriter;
   }
 
   void writeUint8(int value) {
@@ -198,7 +195,9 @@ class TypeEncoder {
     int scaledValue = (value * pow(10, scale)).round();
 
     // Encode scaled value
-    for (int bits = scaledValue.bitLength; bits > 0; bits -= 8, scaledValue >>= 8) {
+    for (int bits = scaledValue.bitLength;
+        bits > 0;
+        bits -= 8, scaledValue >>= 8) {
       bytes.add(scaledValue & 0xFF);
     }
 
@@ -211,8 +210,10 @@ class TypeEncoder {
     writeBytes(new Uint8List.fromList(bytes.reversed.toList()), size);
   }
 
-  void writeTypedValue(String name, Object value, {TypeSpec typeSpec : null, DataType forceType : null, SizeType size: SizeType.LONG}) {
-
+  void writeTypedValue(String name, Object value,
+      {TypeSpec typeSpec: null,
+      DataType forceType: null,
+      SizeType size: SizeType.LONG}) {
     DataType valueType = typeSpec != null ? typeSpec.valueType : forceType;
     //_logger.fine("[TypeEncoder::writeTypedValue] Attempting to write ${DataType.nameOf(valueType)} @ 0x${(encoder.writer.lengthInBytes + (encoder.protocolVersion == ProtocolVersion.V2 ? Header.SIZE_IN_BYTES_V2 : Header.SIZE_IN_BYTES_V3)).toRadixString(16)}");
 
@@ -232,13 +233,14 @@ class TypeEncoder {
       case DataType.UUID:
       case DataType.TIMEUUID:
         if (value is! Uuid) {
-          throw new ArgumentError("Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to be an instance of Uuid");
+          throw new ArgumentError(
+              "Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to be an instance of Uuid");
         }
         _writeUUID(value, size);
         break;
       case DataType.CUSTOM:
-      // If this is a Uint8List write is to the byte stream.
-      // Otherwise, check if this is a CustomType instance with a registered codec
+        // If this is a Uint8List write is to the byte stream.
+        // Otherwise, check if this is a CustomType instance with a registered codec
         if (value is Uint8List) {
           writeBytes(value, size);
         } else if (value is CustomType) {
@@ -246,15 +248,18 @@ class TypeEncoder {
           if (codec != null) {
             writeBytes(codec.encode(value), size);
           } else {
-            throw new ArgumentError("No custom type handler codec registered for custom type: ${value.customTypeClass}");
+            throw new ArgumentError(
+                "No custom type handler codec registered for custom type: ${value.customTypeClass}");
           }
         } else {
-          throw new ArgumentError("Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to be an instance of Uint8List OR an instance of CustomType with a registered type handler");
+          throw new ArgumentError(
+              "Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to be an instance of Uint8List OR an instance of CustomType with a registered type handler");
         }
         break;
       case DataType.BLOB:
         if (value is! Uint8List) {
-          throw new ArgumentError("Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to be an instance of Uint8List");
+          throw new ArgumentError(
+              "Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to be an instance of Uint8List");
         }
         writeBytes(value as Uint8List, size);
         break;
@@ -269,7 +274,8 @@ class TypeEncoder {
         break;
       case DataType.TIMESTAMP:
         if (value is! DateTime) {
-          throw new ArgumentError("Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to be an instance of DateTime");
+          throw new ArgumentError(
+              "Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to be an instance of DateTime");
         }
         writeLength(8, size);
         writeUInt64((value as DateTime).millisecondsSinceEpoch);
@@ -288,24 +294,27 @@ class TypeEncoder {
         break;
       case DataType.INET:
         if (value is! InternetAddress) {
-          throw new ArgumentError("Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to be an instance of InternetAddress");
+          throw new ArgumentError(
+              "Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to be an instance of InternetAddress");
         }
         writeBytes((value as InternetAddress).rawAddress, size);
         break;
       case DataType.LIST:
       case DataType.SET:
         if (value is! Iterable) {
-          throw new ArgumentError("Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to implement Iterable");
+          throw new ArgumentError(
+              "Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to implement Iterable");
         }
         Iterable v = value as Iterable;
 
         // Encode list length and items into a separate buffer, then write the buffer length and buffer data
         SizeType itemSize = protocolVersion == ProtocolVersion.V2
-                            ? SizeType.SHORT
-                            : SizeType.LONG;
+            ? SizeType.SHORT
+            : SizeType.LONG;
         TypeEncoder scopedEncoder = new TypeEncoder(protocolVersion);
         scopedEncoder.writeLength(v.length, itemSize);
-        v.forEach((Object elem) => scopedEncoder.writeTypedValue(name, elem, typeSpec : typeSpec.valueSubType, size: itemSize));
+        v.forEach((Object elem) => scopedEncoder.writeTypedValue(name, elem,
+            typeSpec: typeSpec.valueSubType, size: itemSize));
 
         // Write buffer size in bytes and the actual buffer data
         writeLength(scopedEncoder.writer.lengthInBytes, size);
@@ -313,20 +322,23 @@ class TypeEncoder {
         break;
       case DataType.MAP:
         if (value is! Map) {
-          throw new ArgumentError("Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to implement Map");
+          throw new ArgumentError(
+              "Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to implement Map");
         }
         Map v = value as Map;
 
         // Encode list items into a separate buffer, then write the buffer length and buffer data
         SizeType itemSize = protocolVersion == ProtocolVersion.V2
-                            ? SizeType.SHORT
-                            : SizeType.LONG;
+            ? SizeType.SHORT
+            : SizeType.LONG;
         TypeEncoder scopedEncoder = new TypeEncoder(protocolVersion);
         scopedEncoder.writeLength(v.length, itemSize);
         v.forEach((Object key, Object val) {
           scopedEncoder
-            ..writeTypedValue(name, key, typeSpec : typeSpec.keySubType, size: itemSize)
-            ..writeTypedValue(name, val, typeSpec : typeSpec.valueSubType, size: itemSize);
+            ..writeTypedValue(name, key,
+                typeSpec: typeSpec.keySubType, size: itemSize)
+            ..writeTypedValue(name, val,
+                typeSpec: typeSpec.valueSubType, size: itemSize);
         });
 
         // Write buffer size in bytes and the actual buffer data
@@ -342,7 +354,8 @@ class TypeEncoder {
         break;
       case DataType.UDT:
         if (value is! Map) {
-          throw new ArgumentError("Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to implement Map");
+          throw new ArgumentError(
+              "Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to implement Map");
         }
         Map v = value as Map;
 
@@ -350,7 +363,8 @@ class TypeEncoder {
         SizeType itemSize = SizeType.LONG;
         TypeEncoder scopedEncoder = new TypeEncoder(protocolVersion);
         typeSpec.udtFields.forEach((String name, TypeSpec udtType) {
-          scopedEncoder.writeTypedValue(name, v[name], typeSpec: udtType, size: itemSize);
+          scopedEncoder.writeTypedValue(name, v[name],
+              typeSpec: udtType, size: itemSize);
         });
 
         // Write buffer size in bytes and the actual buffer data
@@ -360,7 +374,8 @@ class TypeEncoder {
         break;
       case DataType.TUPLE:
         if (value is! Tuple) {
-          throw new ArgumentError("Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to be an instance of Tuple");
+          throw new ArgumentError(
+              "Expected value for field '${name}' of type ${DataType.nameOf(valueType)} to be an instance of Tuple");
         }
 
         Iterable v = (value as Tuple);
@@ -369,9 +384,8 @@ class TypeEncoder {
         SizeType itemSize = SizeType.LONG;
         TypeEncoder scopedEncoder = new TypeEncoder(protocolVersion);
         for (int index = 0; index < v.length; index++) {
-          scopedEncoder.writeTypedValue(name,
-          v.elementAt(index),
-          typeSpec : typeSpec.tupleFields.elementAt(index), size: itemSize);
+          scopedEncoder.writeTypedValue(name, v.elementAt(index),
+              typeSpec: typeSpec.tupleFields.elementAt(index), size: itemSize);
         }
 
         // Write buffer size in bytes and the actual buffer data
@@ -379,7 +393,8 @@ class TypeEncoder {
         writer.addAll(scopedEncoder.writer.chunks);
         break;
       default:
-        throw new ArgumentError("Unsupported type ${DataType.nameOf(valueType)} for arg '${name}' with value ${value}");
+        throw new ArgumentError(
+            "Unsupported type ${DataType.nameOf(valueType)} for arg '${name}' with value ${value}");
     }
   }
 

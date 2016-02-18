@@ -1,7 +1,6 @@
 part of dart_cassandra_cql.connection;
 
 class Connection {
-
   // Configuration options
   PoolConfiguration _poolConfig;
   String defaultKeyspace;
@@ -29,7 +28,8 @@ class Connection {
   Completer _drained;
   Future _socketFlushed;
 
-  Connection(String this.connId, String this.host, int this.port, {PoolConfiguration config, String this.defaultKeyspace}) {
+  Connection(String this.connId, String this.host, int this.port,
+      {PoolConfiguration config, String this.defaultKeyspace}) {
     // If no config is specified, use the default one
     _poolConfig = config == null ? new PoolConfiguration() : config;
 
@@ -45,7 +45,6 @@ class Connection {
    */
 
   Future _abortRequestsAndCleanup(reason) {
-
     // Clear healthy flag
     healthy = false;
 
@@ -61,9 +60,8 @@ class Connection {
     _connected = null;
 
     // Kill socket
-    Future socketClosed = _socket != null
-                          ? _socket.close()
-                          : new Future.value();
+    Future socketClosed =
+        _socket != null ? _socket.close() : new Future.value();
     _socket = null;
 
     return socketClosed;
@@ -80,7 +78,8 @@ class Connection {
       _connected = new Completer();
     }
 
-    connectionLogger.info("[${connId}] Trying to connect to ${host}:${port} [attempt ${_connectionAttempt + 1}/${_poolConfig.maxConnectionAttempts}]");
+    connectionLogger.info(
+        "[${connId}] Trying to connect to ${host}:${port} [attempt ${_connectionAttempt + 1}/${_poolConfig.maxConnectionAttempts}]");
     Socket.connect(host, port).then((Socket s) {
       _socket = s;
       _socketFlushed = new Future.value(true);
@@ -88,38 +87,42 @@ class Connection {
       // Initialize our writer pool and set the reservation timeout
       _reservedFrameWriters.clear();
       _frameWriterPool = new AsyncQueue<FrameWriter>.from(
-          new List<FrameWriter>.generate(_poolConfig.streamsPerConnection, (int id) => new FrameWriter(id, _poolConfig.protocolVersion, preferBiggerTcpPackets : _poolConfig.preferBiggerTcpPackets))
-      );
-      _frameWriterPool.reservationTimeout = _poolConfig.streamReservationTimeout;
+          new List<FrameWriter>.generate(
+              _poolConfig.streamsPerConnection,
+              (int id) => new FrameWriter(id, _poolConfig.protocolVersion,
+                  preferBiggerTcpPackets: _poolConfig.preferBiggerTcpPackets)));
+      _frameWriterPool.reservationTimeout =
+          _poolConfig.streamReservationTimeout;
 
       // Bind processors and initiate handshake
       _socket
-      .transform(new FrameParser().transformer)
-      .transform(new FrameDecompressor(_poolConfig.compression).transformer)
-      .transform(new FrameReader().transformer)
-      .listen(
-          _onMessage
-          // Mute socket errors; they will be caught by _writeMessage
-          , onError : (_) {
-          }
-          , onDone : () {
-            connectionLogger.severe("[${connId}] Server has closed the connection");
-            if (_socket != null) {
-              _socket.destroy();
-              _socket = null;
-            }
+          .transform(new FrameParser().transformer)
+          .transform(new FrameDecompressor(_poolConfig.compression).transformer)
+          .transform(new FrameReader().transformer)
+          .listen(
+              _onMessage
+              // Mute socket errors; they will be caught by _writeMessage
+              ,
+              onError: (_) {}, onDone: () {
+        connectionLogger.severe("[${connId}] Server has closed the connection");
+        if (_socket != null) {
+          _socket.destroy();
+          _socket = null;
+        }
 
-            _abortRequestsAndCleanup(new ConnectionLostException("Server closed the connection"));
-          }
-      );
+        _abortRequestsAndCleanup(
+            new ConnectionLostException("Server closed the connection"));
+      });
 
       // Handshake with the server
       _handshake();
     }).catchError((err, trace) {
       if (++_connectionAttempt >= _poolConfig.maxConnectionAttempts) {
-        String errorMessage = "[${connId}] Could not connect to ${host}:${port} after ${_poolConfig.maxConnectionAttempts} attempts. Giving up";
+        String errorMessage =
+            "[${connId}] Could not connect to ${host}:${port} after ${_poolConfig.maxConnectionAttempts} attempts. Giving up";
         connectionLogger.severe(errorMessage);
-        _connected.completeError(new ConnectionFailedException(errorMessage, trace));
+        _connected
+            .completeError(new ConnectionFailedException(errorMessage, trace));
 
         // Clear _connected future so the client can invoke open() in the future
         _connected = null;
@@ -135,9 +138,12 @@ class Connection {
   Future<ResultMessage> _authenticate(AuthenticateMessage authMessage) {
     // Check if an authenticator is specified
     if (_poolConfig.authenticator == null) {
-      throw new AuthenticationException("Server requested '${authMessage.authenticatorClass}' authenticator but no authenticator specified");
-    } else if (authMessage.authenticatorClass != _poolConfig.authenticator.authenticatorClass) {
-      throw new AuthenticationException("Server requested '${authMessage.authenticatorClass}' authenticator but a '${_poolConfig.authenticator.authenticatorClass}' authenticator was specified instead");
+      throw new AuthenticationException(
+          "Server requested '${authMessage.authenticatorClass}' authenticator but no authenticator specified");
+    } else if (authMessage.authenticatorClass !=
+        _poolConfig.authenticator.authenticatorClass) {
+      throw new AuthenticationException(
+          "Server requested '${authMessage.authenticatorClass}' authenticator but a '${_poolConfig.authenticator.authenticatorClass}' authenticator was specified instead");
     }
 
     // Run through challenge response till we get back a ready message from the server
@@ -147,20 +153,16 @@ class Connection {
       if (result is AuthenticateMessage || result is AuthChallengeMessage) {
         AuthResponseMessage response = new AuthResponseMessage()
           ..responsePayload = _poolConfig.authenticator.answerChallenge(
-            result is AuthenticateMessage
-            ? result.challengePayload
-            : (result as AuthChallengeMessage).challengePayload
-        );
+              result is AuthenticateMessage
+                  ? result.challengePayload
+                  : (result as AuthChallengeMessage).challengePayload);
 
-        _writeMessage(response)
-        .then(answerChallenge)
-        .catchError((e, trace) {
+        _writeMessage(response).then(answerChallenge).catchError((e, trace) {
           completer.completeError(
               e is CassandraException
-              ? new AuthenticationException(e.message, trace)
-              : e
-              , trace
-          );
+                  ? new AuthenticationException(e.message, trace)
+                  : e,
+              trace);
         });
       } else if (result is AuthSuccessMessage) {
         completer.complete(result);
@@ -177,21 +179,18 @@ class Connection {
    */
 
   void _handshake() {
-
     StartupMessage message = new StartupMessage()
       ..cqlVersion = _poolConfig.cqlVersion
       ..compression = _poolConfig.compression;
 
-    _writeMessage(message)
-    .then((Message response) {
+    _writeMessage(message).then((Message response) {
       // Authentication Required
       if (response is AuthenticateMessage) {
         return _authenticate(response);
       } else {
         return new Future.value(response);
       }
-    })
-    .then((_) {
+    }).then((_) {
       // if default keyspace is specified, run a query here.
       // Note since the connection is not yet *open* we cannot invoke execute() here
       if (defaultKeyspace != null) {
@@ -205,9 +204,9 @@ class Connection {
         return _writeMessage(message);
       }
       return true;
-    })
-    .then((_) {
-      connectionLogger.info("[${connId}] Connected to ${host}:${port} [attempt ${_connectionAttempt + 1}/${_poolConfig.maxConnectionAttempts}]");
+    }).then((_) {
+      connectionLogger.info(
+          "[${connId}] Connected to ${host}:${port} [attempt ${_connectionAttempt + 1}/${_poolConfig.maxConnectionAttempts}]");
 
       healthy = true;
       inService = true;
@@ -227,7 +226,6 @@ class Connection {
    */
 
   Future _writeMessage(RequestMessage message) {
-
     Completer reply = new Completer();
     // Make sure we have flushed our socket data and then
     // block till we get back a frame writer
@@ -243,11 +241,11 @@ class Connection {
       writer.writeMessage(message, _socket,
           compression: _poolConfig.compression);
       return _socket.flush();
-    })
-    .catchError((e, trace) {
+    }).catchError((e, trace) {
       // Wrap SocketExceptions
       if (e is SocketException) {
-        _abortRequestsAndCleanup(new ConnectionLostException('Lost connection'));
+        _abortRequestsAndCleanup(
+            new ConnectionLostException('Lost connection'));
       } else {
         reply.completeError(e);
       }
@@ -261,10 +259,11 @@ class Connection {
    */
 
   void _onMessage(Message message) {
-    connectionLogger.fine("[${connId}] [stream #${message.streamId}] Received message of type ${Opcode.nameOf(message.opcode)} (${message.opcode}) ${message}");
+    connectionLogger.fine(
+        "[${connId}] [stream #${message.streamId}] Received message of type ${Opcode.nameOf(message.opcode)} (${message.opcode}) ${message}");
 
     // Fetch our response completer
-    Completer responseCompleter = _pendingResponses[ message.streamId ];
+    Completer responseCompleter = _pendingResponses[message.streamId];
 
     // Release streamId back to the pool unless its -1 (server event message)
     if (message.streamId != -1) {
@@ -320,7 +319,8 @@ class Connection {
       case Opcode.ERROR:
         ErrorMessage errorMessage = message as ErrorMessage;
         connectionLogger.severe(errorMessage.message);
-        responseCompleter.completeError(new CassandraException(errorMessage.message));
+        responseCompleter
+            .completeError(new CassandraException(errorMessage.message));
         break;
     }
   }
@@ -367,7 +367,8 @@ class Connection {
    * This method returns a [Future] to be completed when the connection is shut down
    */
 
-  Future close({bool drain : true, Duration drainTimeout : const Duration(seconds : 5)}) {
+  Future close(
+      {bool drain: true, Duration drainTimeout: const Duration(seconds: 5)}) {
     // Already closed
     if (_socket == null) {
       return new Future.value();
@@ -387,9 +388,10 @@ class Connection {
         if (drainTimeout != null) {
           new Future.delayed(drainTimeout).then((_) {
             if (_drained != null && !_drained.isCompleted) {
-              _abortRequestsAndCleanup(new ConnectionLostException('Connection drain timeout'))
-              .then((_) {
-                _drained .complete();
+              _abortRequestsAndCleanup(
+                      new ConnectionLostException('Connection drain timeout'))
+                  .then((_) {
+                _drained.complete();
               });
             }
           });
@@ -398,7 +400,8 @@ class Connection {
 
       return _drained.future;
     } else {
-      return _abortRequestsAndCleanup(new ConnectionLostException('Connection closed'));
+      return _abortRequestsAndCleanup(
+          new ConnectionLostException('Connection closed'));
     }
   }
 
@@ -408,8 +411,8 @@ class Connection {
       // to positional ones before preparing the statements
       PrepareMessage message = new PrepareMessage()
         ..query = _poolConfig.protocolVersion == ProtocolVersion.V2
-                  ? query.positionalQuery
-                  : query.query;
+            ? query.positionalQuery
+            : query.query;
 
       return _writeMessage(message);
     });
@@ -424,7 +427,10 @@ class Connection {
    * This method will returns [ResultMessage] with the query result
    */
 
-  Future<ResultMessage> execute(Query query, {PreparedResultMessage preparedResult : null, int pageSize : null, Uint8List pagingState : null}) {
+  Future<ResultMessage> execute(Query query,
+      {PreparedResultMessage preparedResult: null,
+      int pageSize: null,
+      Uint8List pagingState: null}) {
     return open().then((_) {
       // Simple unprepared query
       if (preparedResult == null) {
@@ -443,8 +449,8 @@ class Connection {
         ExecuteMessage message = new ExecuteMessage()
           ..queryId = preparedResult.queryId
           ..bindings = _poolConfig.protocolVersion == ProtocolVersion.V2
-                       ? query.namedToPositionalBindings
-                       : query.bindings
+              ? query.namedToPositionalBindings
+              : query.bindings
           ..bindingTypes = preparedResult.metadata.colSpec
           ..consistency = query.consistency
           ..serialConsistency = query.serialConsistency
@@ -477,21 +483,24 @@ class Connection {
    * and return a [Stream<EventMessage>] for handling incoming events
    */
 
-  Stream<EventMessage> listenForEvents(Iterable<EventRegistrationType> eventTypes) {
-    RegisterMessage message = new RegisterMessage()
-      ..eventTypes = eventTypes;
+  Stream<EventMessage> listenForEvents(
+      Iterable<EventRegistrationType> eventTypes) {
+    RegisterMessage message = new RegisterMessage()..eventTypes = eventTypes;
 
     // Setup the stream controller
     if (_eventController == null) {
       _eventController = new StreamController<EventMessage>();
     }
 
-    open().then((_) => _writeMessage(message)).catchError(_eventController.addError);
+    open()
+        .then((_) => _writeMessage(message))
+        .catchError(_eventController.addError);
     return _eventController.stream;
   }
 
   /**
    * Check if the connection has available stream slots for multiplexing additional queries
    */
-  bool get hasAvailableStreams => _frameWriterPool != null && _frameWriterPool.hasAvailableSlots;
+  bool get hasAvailableStreams =>
+      _frameWriterPool != null && _frameWriterPool.hasAvailableSlots;
 }

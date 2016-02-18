@@ -10,5 +10,4 @@ abstract class Authenticator {
    * Process the [challenge] sent by the server and return a [Uint8List] response
    */
   Uint8List answerChallenge(Uint8List challenge);
-
 }

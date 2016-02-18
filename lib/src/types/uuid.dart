@@ -1,4 +1,4 @@
-  part of dart_cassandra_cql.types;
+part of dart_cassandra_cql.types;
 
 // Helpers
 _uuidImpl.Uuid _uuidFactory = new _uuidImpl.Uuid();
@@ -16,14 +16,14 @@ class Uuid {
   /**
    * Create a V4 (randomised) uuid
    */
-  factory Uuid.simple(){
+  factory Uuid.simple() {
     return new Uuid(_uuidFactory.v4());
   }
 
   /**
    * Create a V1 (time-based) uuid
    */
-  factory Uuid.timeBased(){
+  factory Uuid.timeBased() {
     return new Uuid(_uuidFactory.v1());
   }
 
@@ -41,5 +41,4 @@ class Uuid {
    */
 
   get bytes => new Uint8List.fromList(_uuidFactory.parse(value));
-
 }

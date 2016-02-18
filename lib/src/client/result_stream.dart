@@ -1,6 +1,7 @@
 part of dart_cassandra_cql.client;
 
-typedef Future PagedQueryExecutor(Query query, {int pageSize, Uint8List pagingState});
+typedef Future PagedQueryExecutor(Query query,
+    {int pageSize, Uint8List pagingState});
 
 class ResultStream {
   PagedQueryExecutor _queryExecutor;
@@ -17,35 +18,32 @@ class ResultStream {
     }
     _buffering = true;
 
-    _queryExecutor(
-        _query
-        , pageSize : _pageSize
-        , pagingState : _pagingState
-    ).then((RowsResultMessage data) {
-      // If the stream has been closed, clean up
-      if (_streamController.isClosed) {
-        return;
-      }
+    _queryExecutor(_query, pageSize: _pageSize, pagingState: _pagingState)
+        .then((RowsResultMessage data) {
+          // If the stream has been closed, clean up
+          if (_streamController.isClosed) {
+            return;
+          }
 
-      _buffering = false;
+          _buffering = false;
 
-      // Append incoming rows to current result list and update our paging state
-      _bufferedData = new Queue.from(data.rows);
-      data.rows = null;
-      _pagingState = data.metadata.pagingState;
+          // Append incoming rows to current result list and update our paging state
+          _bufferedData = new Queue.from(data.rows);
+          data.rows = null;
+          _pagingState = data.metadata.pagingState;
 
-      _emitRows();
-    })
-    .catchError(_streamController.addError, test : (e) => e is NoHealthyConnectionsException)
-    .catchError((_) {
-      // Treat any other kind of error as a 'connection lost' event and try to rebuffer again
-      _buffering = false;
-      _bufferNextPage();
-    });
+          _emitRows();
+        })
+        .catchError(_streamController.addError,
+            test: (e) => e is NoHealthyConnectionsException)
+        .catchError((_) {
+          // Treat any other kind of error as a 'connection lost' event and try to rebuffer again
+          _buffering = false;
+          _bufferNextPage();
+        });
   }
 
   void _emitRows() {
-
     // If stream is paused, do not emit any events
     if (_streamController.isPaused) {
       return;
@@ -53,7 +51,6 @@ class ResultStream {
 
     // Emit each available row
     while (_bufferedData != null && _bufferedData.isNotEmpty) {
-
       Map<String, Object> row = _bufferedData.removeFirst();
       _streamController.add(row);
 
@@ -67,9 +64,7 @@ class ResultStream {
     // or close the stream if we are done
     if (!_streamController.isClosed &&
         !_streamController.isPaused &&
-        _bufferedData.isEmpty
-    ) {
-
+        _bufferedData.isEmpty) {
       if (_pagingState == null) {
         _streamController.close();
       } else {
@@ -81,7 +76,6 @@ class ResultStream {
   void _cleanup() {
     _bufferedData = null;
     _pagingState = null;
-
   }
 
   Stream<Map<String, Object>> get stream => _streamController.stream;
@@ -89,12 +83,12 @@ class ResultStream {
   /**
    * Create a new [ResultStream] by paging through [this._query] object with a page size of [this._pageSize].
    */
-  ResultStream(PagedQueryExecutor this._queryExecutor, Query this._query, int this._pageSize) {
+  ResultStream(PagedQueryExecutor this._queryExecutor, Query this._query,
+      int this._pageSize) {
     _streamController = new StreamController<Map<String, Object>>(
-        onListen : _bufferNextPage
-        , onResume : _emitRows
-        , onCancel : _cleanup
-        , sync : true
-    );
+        onListen: _bufferNextPage,
+        onResume: _emitRows,
+        onCancel: _cleanup,
+        sync: true);
   }
 }

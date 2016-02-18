@@ -13,13 +13,12 @@ class QueryMessage extends Message implements RequestMessage {
   void _writeBindings(TypeEncoder encoder) {
     // Non-prepared query messages automatically expand their arguments inside the query
     // string so this is a NO-OP.
-
   }
 
   void _writeQueryParameters(TypeEncoder encoder) {
     bool emptyBindings = (bindings == null) ||
-                         (bindings is Map && (bindings as Map).isEmpty) ||
-                         (bindings is List && (bindings as List).isEmpty);
+        (bindings is Map && (bindings as Map).isEmpty) ||
+        (bindings is List && (bindings as List).isEmpty);
 
     int flags = 0;
     if (!emptyBindings) {
@@ -53,16 +52,13 @@ class QueryMessage extends Message implements RequestMessage {
     if (serialConsistency != null) {
       encoder.writeUInt16(serialConsistency.value);
     }
-
   }
 
   void write(TypeEncoder encoder) {
-
     // Write query
     encoder.writeString(query, SizeType.LONG);
 
     // Write query parameters
     _writeQueryParameters(encoder);
   }
-
 }

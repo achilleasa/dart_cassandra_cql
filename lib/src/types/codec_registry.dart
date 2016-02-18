@@ -1,8 +1,7 @@
 part of dart_cassandra_cql.types;
 
 // Cassandra custom type codec registry
-Map<String, Codec<Object, Uint8List>> _customTypeCodecs = {
-};
+Map<String, Codec<Object, Uint8List>> _customTypeCodecs = {};
 
 /**
  * Register a [Codec<Object, Uint8List] for handling serialization/deserialization
@@ -26,4 +25,5 @@ void unregisterCodec(String typeClassName) {
  * Get a [Codec<Object, Uint8List] for handling serialization/deserialization
  * of custom cassandra data type with class [typeClassName]
  */
-Codec<Object, Uint8List> getCodec(String typeClassName) => _customTypeCodecs[ typeClassName ];
+Codec<Object, Uint8List> getCodec(String typeClassName) =>
+    _customTypeCodecs[typeClassName];

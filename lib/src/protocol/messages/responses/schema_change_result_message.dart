@@ -5,7 +5,7 @@ class SchemaChangeResultMessage extends ResultMessage {
   String keyspace;
   String table;
 
-  SchemaChangeResultMessage.parse(TypeDecoder decoder){
+  SchemaChangeResultMessage.parse(TypeDecoder decoder) {
     change = decoder.readString(SizeType.SHORT);
     keyspace = decoder.readString(SizeType.SHORT);
     table = decoder.readString(SizeType.SHORT);

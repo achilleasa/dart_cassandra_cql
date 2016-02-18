@@ -7,11 +7,8 @@ class StartupMessage extends Message implements RequestMessage {
   StartupMessage() : super(Opcode.STARTUP);
 
   void write(TypeEncoder encoder) {
-
     // Write message contents
-    Map<String, String> params = {
-        "CQL_VERSION" : cqlVersion
-    };
+    Map<String, String> params = {"CQL_VERSION": cqlVersion};
     if (compression != null) {
       params["COMPRESSION"] = compression.value;
     }

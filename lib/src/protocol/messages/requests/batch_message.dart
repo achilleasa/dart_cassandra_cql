@@ -9,7 +9,6 @@ class BatchMessage extends Message implements RequestMessage {
   BatchMessage() : super(Opcode.BATCH);
 
   void write(TypeEncoder encoder) {
-
     // Write batch type and number of queries
     encoder.writeUint8(type.value);
 

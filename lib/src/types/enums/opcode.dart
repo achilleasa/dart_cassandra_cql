@@ -23,46 +23,90 @@ class Opcode extends Enum<int> {
   String toString() => "0x${value.toRadixString(16)}";
 
   static Opcode valueOf(int value) {
-    Opcode fromValue = value == ERROR._value ? ERROR :
-                       value == STARTUP._value ? STARTUP :
-                       value == READY._value ? READY :
-                       value == AUTHENTICATE._value ? AUTHENTICATE :
-                       value == OPTIONS._value ? OPTIONS :
-                       value == SUPPORTED._value ? SUPPORTED :
-                       value == QUERY._value ? QUERY :
-                       value == RESULT._value ? RESULT :
-                       value == PREPARE._value ? PREPARE :
-                       value == EXECUTE._value ? EXECUTE :
-                       value == REGISTER._value ? REGISTER :
-                       value == EVENT._value ? EVENT :
-                       value == BATCH._value ? BATCH :
-                       value == AUTH_CHALLENGE._value ? AUTH_CHALLENGE :
-                       value == AUTH_RESPONSE._value ? AUTH_RESPONSE :
-                       value == AUTH_SUCCESS._value ? AUTH_SUCCESS : null;
+    Opcode fromValue = value == ERROR._value
+        ? ERROR
+        : value == STARTUP._value
+            ? STARTUP
+            : value == READY._value
+                ? READY
+                : value == AUTHENTICATE._value
+                    ? AUTHENTICATE
+                    : value == OPTIONS._value
+                        ? OPTIONS
+                        : value == SUPPORTED._value
+                            ? SUPPORTED
+                            : value == QUERY._value
+                                ? QUERY
+                                : value == RESULT._value
+                                    ? RESULT
+                                    : value == PREPARE._value
+                                        ? PREPARE
+                                        : value == EXECUTE._value
+                                            ? EXECUTE
+                                            : value == REGISTER._value
+                                                ? REGISTER
+                                                : value == EVENT._value
+                                                    ? EVENT
+                                                    : value == BATCH._value
+                                                        ? BATCH
+                                                        : value ==
+                                                                AUTH_CHALLENGE
+                                                                    ._value
+                                                            ? AUTH_CHALLENGE
+                                                            : value ==
+                                                                    AUTH_RESPONSE
+                                                                        ._value
+                                                                ? AUTH_RESPONSE
+                                                                : value ==
+                                                                        AUTH_SUCCESS
+                                                                            ._value
+                                                                    ? AUTH_SUCCESS
+                                                                    : null;
 
     if (fromValue == null) {
-      throw new ArgumentError("Invalid opcode value 0x${value.toRadixString(16)}");
+      throw new ArgumentError(
+          "Invalid opcode value 0x${value.toRadixString(16)}");
     }
     return fromValue;
   }
 
   static String nameOf(Opcode value) {
-    String nameValue = value == ERROR ? "ERROR" :
-                       value == STARTUP ? "STARTUP" :
-                       value == READY ? "READY" :
-                       value == AUTHENTICATE ? "AUTHENTICATE" :
-                       value == OPTIONS ? "OPTIONS" :
-                       value == SUPPORTED ? "SUPPORTED" :
-                       value == QUERY ? "QUERY" :
-                       value == RESULT ? "RESULT" :
-                       value == PREPARE ? "PREPARE" :
-                       value == EXECUTE ? "EXECUTE" :
-                       value == REGISTER ? "REGISTER" :
-                       value == EVENT ? "EVENT" :
-                       value == BATCH ? "BATCH" :
-                       value == AUTH_CHALLENGE ? "AUTH_CHALLENGE" :
-                       value == AUTH_RESPONSE ? "AUTH_RESPONSE" :
-                       value == AUTH_SUCCESS ? "AUTH_SUCCESS" : null;
+    String nameValue = value == ERROR
+        ? "ERROR"
+        : value == STARTUP
+            ? "STARTUP"
+            : value == READY
+                ? "READY"
+                : value == AUTHENTICATE
+                    ? "AUTHENTICATE"
+                    : value == OPTIONS
+                        ? "OPTIONS"
+                        : value == SUPPORTED
+                            ? "SUPPORTED"
+                            : value == QUERY
+                                ? "QUERY"
+                                : value == RESULT
+                                    ? "RESULT"
+                                    : value == PREPARE
+                                        ? "PREPARE"
+                                        : value == EXECUTE
+                                            ? "EXECUTE"
+                                            : value == REGISTER
+                                                ? "REGISTER"
+                                                : value == EVENT
+                                                    ? "EVENT"
+                                                    : value == BATCH
+                                                        ? "BATCH"
+                                                        : value ==
+                                                                AUTH_CHALLENGE
+                                                            ? "AUTH_CHALLENGE"
+                                                            : value ==
+                                                                    AUTH_RESPONSE
+                                                                ? "AUTH_RESPONSE"
+                                                                : value ==
+                                                                        AUTH_SUCCESS
+                                                                    ? "AUTH_SUCCESS"
+                                                                    : null;
 
     return nameValue;
   }

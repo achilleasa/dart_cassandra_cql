@@ -22,24 +22,46 @@ class ErrorCode extends Enum<int> {
   String toString() => "0x${value.toRadixString(16)}";
 
   static ErrorCode valueOf(int value) {
-    ErrorCode fromValue = value == SERVER_ERROR._value ? SERVER_ERROR :
-                          value == PROTOCOL_ERROR._value ? PROTOCOL_ERROR :
-                          value == BAD_CREDENTIALS._value ? BAD_CREDENTIALS :
-                          value == UNAVAILABLE._value ? UNAVAILABLE :
-                          value == OVERLOADED._value ? OVERLOADED :
-                          value == IS_BOOTSTRAPPING._value ? IS_BOOTSTRAPPING :
-                          value == TRUNCATE_ERROR._value ? TRUNCATE_ERROR :
-                          value == WRITE_TIMEOUT._value ? WRITE_TIMEOUT :
-                          value == READ_TIMEOUT._value ? READ_TIMEOUT :
-                          value == SYNTAX_ERROR._value ? SYNTAX_ERROR :
-                          value == UNAUTHORIZED._value ? UNAUTHORIZED :
-                          value == INVALID._value ? INVALID :
-                          value == CONFIG_ERROR._value ? CONFIG_ERROR :
-                          value == ALREADY_EXISTS._value ? ALREADY_EXISTS :
-                          value == UNPREPARED._value ? UNPREPARED : null;
+    ErrorCode fromValue = value == SERVER_ERROR._value
+        ? SERVER_ERROR
+        : value == PROTOCOL_ERROR._value
+            ? PROTOCOL_ERROR
+            : value == BAD_CREDENTIALS._value
+                ? BAD_CREDENTIALS
+                : value == UNAVAILABLE._value
+                    ? UNAVAILABLE
+                    : value == OVERLOADED._value
+                        ? OVERLOADED
+                        : value == IS_BOOTSTRAPPING._value
+                            ? IS_BOOTSTRAPPING
+                            : value == TRUNCATE_ERROR._value
+                                ? TRUNCATE_ERROR
+                                : value == WRITE_TIMEOUT._value
+                                    ? WRITE_TIMEOUT
+                                    : value == READ_TIMEOUT._value
+                                        ? READ_TIMEOUT
+                                        : value == SYNTAX_ERROR._value
+                                            ? SYNTAX_ERROR
+                                            : value == UNAUTHORIZED._value
+                                                ? UNAUTHORIZED
+                                                : value == INVALID._value
+                                                    ? INVALID
+                                                    : value ==
+                                                            CONFIG_ERROR._value
+                                                        ? CONFIG_ERROR
+                                                        : value ==
+                                                                ALREADY_EXISTS
+                                                                    ._value
+                                                            ? ALREADY_EXISTS
+                                                            : value ==
+                                                                    UNPREPARED
+                                                                        ._value
+                                                                ? UNPREPARED
+                                                                : null;
 
     if (fromValue == null) {
-      throw new ArgumentError("Invalid error code value 0x${value.toRadixString(16)}");
+      throw new ArgumentError(
+          "Invalid error code value 0x${value.toRadixString(16)}");
     }
     return fromValue;
   }

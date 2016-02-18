@@ -1,7 +1,6 @@
 part of dart_cassandra_cql.protocol;
 
 class PasswordAuthenticator implements Authenticator {
-
   String _userName;
   String _password;
 
@@ -23,7 +22,8 @@ class PasswordAuthenticator implements Authenticator {
   /**
    * Get the class of this authenticator
    */
-  String get authenticatorClass => "org.apache.cassandra.auth.PasswordAuthenticator";
+  String get authenticatorClass =>
+      "org.apache.cassandra.auth.PasswordAuthenticator";
 
   /**
    * Process the [challenge] sent by the server and return a [Uint8List] response

@@ -1,12 +1,12 @@
 part of dart_cassandra_cql.connection;
 
 class SimpleConnectionPool extends ConnectionPool {
-
   // The list of all pool connections
   final List<Connection> _pool = new List<Connection>();
 
   // The list of maintained connections per host:port combination
-  final Map<String, Set<Connection>> _poolPerHost = new HashMap<String, Set<Connection>>();
+  final Map<String, Set<Connection>> _poolPerHost =
+      new HashMap<String, Set<Connection>>();
 
   // Pending list of reconnect attempts
   final Map<String, Future> _pendingReconnects = new HashMap<String, Future>();
@@ -24,7 +24,9 @@ class SimpleConnectionPool extends ConnectionPool {
    * to the input list of [hosts]
    */
 
-  SimpleConnectionPool.fromHostList(List<String> hosts, PoolConfiguration poolConfig, { String this.defaultKeyspace}) {
+  SimpleConnectionPool.fromHostList(
+      List<String> hosts, PoolConfiguration poolConfig,
+      {String this.defaultKeyspace}) {
     if (hosts == null || hosts.isEmpty) {
       throw new ArgumentError("Host list cannot be empty");
     }
@@ -35,11 +37,10 @@ class SimpleConnectionPool extends ConnectionPool {
     this.poolConfig = poolConfig;
 
     for (int hostIndex = 0; hostIndex < hosts.length; hostIndex++) {
-
       List<String> hostParts = hosts[hostIndex].split(':');
       int port = hostParts.length > 1
-                 ? int.parse(hostParts[1])
-                 : ConnectionPool.DEFAULT_PORT;
+          ? int.parse(hostParts[1])
+          : ConnectionPool.DEFAULT_PORT;
 
       _createPoolForHost(hostParts[0], port);
     }
@@ -47,10 +48,9 @@ class SimpleConnectionPool extends ConnectionPool {
     // If node auto-discovery is enabled listen for those server events
     if (poolConfig.autoDiscoverNodes) {
       listenForServerEvents([
-          EventRegistrationType.STATUS_CHANGE
-          , EventRegistrationType.TOPOLOGY_CHANGE
-      ]).listen(_handleEventMessage, onError : (_) {
-      });
+        EventRegistrationType.STATUS_CHANGE,
+        EventRegistrationType.TOPOLOGY_CHANGE
+      ]).listen(_handleEventMessage, onError: (_) {});
     }
     //poolLogger.info("Created ${_pool.length} connections to ${hosts.length} hosts");
   }
@@ -98,16 +98,16 @@ class SimpleConnectionPool extends ConnectionPool {
         }
 
         // No more connections remaining to be opened
-        if( remainingConnections == 0 && !_poolConnected.isCompleted){
+        if (remainingConnections == 0 && !_poolConnected.isCompleted) {
           // All connections failed
           if (activeConnections == 0) {
-            _poolConnected.completeError(new NoHealthyConnectionsException("Could not connect to any of the supplied hosts"));
-          } else{
+            _poolConnected.completeError(new NoHealthyConnectionsException(
+                "Could not connect to any of the supplied hosts"));
+          } else {
             // At least one connection has been established
             _poolConnected.complete();
           }
         }
-
       });
     });
 
@@ -120,30 +120,38 @@ class SimpleConnectionPool extends ConnectionPool {
    * when all connections are drained or when the [drainTimeout] expires. If [drain] is false then
    * the returned [Future] will already be completed.
    */
-  Future disconnect({ bool drain : true, Duration drainTimeout : const Duration( seconds : 5 )}) {
-    return Future.wait(_pool.map((Connection conn) => conn.close(drain : drain, drainTimeout : drainTimeout)));
+  Future disconnect(
+      {bool drain: true, Duration drainTimeout: const Duration(seconds: 5)}) {
+    return Future.wait(_pool.map((Connection conn) =>
+        conn.close(drain: drain, drainTimeout: drainTimeout)));
   }
 
   /**
    * Get back an active [Connection] from the pool.
    */
   Future<Connection> getConnection() {
-    return _findOneMatchingFilter((Connection conn) => conn.healthy && conn.inService);
+    return _findOneMatchingFilter(
+        (Connection conn) => conn.healthy && conn.inService);
   }
 
   /**
    * Get back an active [Connection] from the pool to the specified [host] and [port].
    */
   Future<Connection> getConnectionToHost(String host, int port) {
-    return _findOneMatchingFilter((Connection conn) => conn.healthy && conn.inService && conn.host == host && conn.port == port);
+    return _findOneMatchingFilter((Connection conn) =>
+        conn.healthy &&
+        conn.inService &&
+        conn.host == host &&
+        conn.port == port);
   }
 
   Future<Connection> _findOneMatchingFilter(Function filter) {
     return connect().then((_) {
-
       // Prefer healthry connections matching the filter predicate that have available
       // query multiplexing slots so we do not need to wait
-      Connection healthyConnection = _pool.firstWhere((Connection conn) => conn.hasAvailableStreams && filter(conn), orElse: () => null);
+      Connection healthyConnection = _pool.firstWhere(
+          (Connection conn) => conn.hasAvailableStreams && filter(conn),
+          orElse: () => null);
 
       // Otherwise try to fetch the first healthy connection from the pool matching the filter predicate
       if (healthyConnection == null) {
@@ -151,7 +159,8 @@ class SimpleConnectionPool extends ConnectionPool {
       }
 
       if (healthyConnection == null) {
-        return new Future.error(new NoHealthyConnectionsException("No healhty connections available"));
+        return new Future.error(new NoHealthyConnectionsException(
+            "No healhty connections available"));
       } else {
         // Remove the connection and append it to the end of the list
         // so we can round-robin our connections
@@ -167,24 +176,21 @@ class SimpleConnectionPool extends ConnectionPool {
     // List for server events and add them to the stream controller
     _eventSubscriber = conn;
     _eventSubscription = conn.listenForEvents([
-        EventRegistrationType.STATUS_CHANGE,
-        EventRegistrationType.TOPOLOGY_CHANGE,
-        EventRegistrationType.SCHEMA_CHANGE
-    ])
-    .listen(_eventStreamController.add, onError: (_) {
-    });
+      EventRegistrationType.STATUS_CHANGE,
+      EventRegistrationType.TOPOLOGY_CHANGE,
+      EventRegistrationType.SCHEMA_CHANGE
+    ]).listen(_eventStreamController.add, onError: (_) {});
 
     poolLogger.info("Listening for server events on [${conn.connId}]");
-
   }
 
   void _handleEventMessage(EventMessage message) {
-    poolLogger.fine("Received eventMessage ${EventRegistrationType.nameOf(message.type)}:${EventType.nameOf(message.subType)} ${message.type == EventRegistrationType.SCHEMA_CHANGE ? ("${message.keyspace}" + (!message.changedTable.isEmpty ? ".${message.changedTable}" : "")) : "${message.address}:${message.port}"}");
+    poolLogger.fine(
+        "Received eventMessage ${EventRegistrationType.nameOf(message.type)}:${EventType.nameOf(message.subType)} ${message.type == EventRegistrationType.SCHEMA_CHANGE ? ("${message.keyspace}" + (!message.changedTable.isEmpty ? ".${message.changedTable}" : "")) : "${message.address}:${message.port}"}");
 
     switch (message.subType) {
       case EventType.NODE_ADDED:
       case EventType.NODE_UP:
-
         String hostKey = "${message.address.host}:${message.port}";
 
         // If we are already processing an UP event for this host, ignore
@@ -202,12 +208,14 @@ class SimpleConnectionPool extends ConnectionPool {
           poolLogger.info("Discovered new node [${hostKey}]. Adding to pool");
           _createPoolForHost(message.address.host, message.port);
         } else {
-          poolLogger.info("Node [${hostKey}] went online. Attempting to reconnect");
+          poolLogger
+              .info("Node [${hostKey}] went online. Attempting to reconnect");
         }
 
         // According to the protocol spec, it might take some time for the node
         // to begin accepting connections so we need to defer our connection attempts.
-        _pendingReconnects[ hostKey ] = new Future.delayed(poolConfig.reconnectWaitTime, () {
+        _pendingReconnects[hostKey] =
+            new Future.delayed(poolConfig.reconnectWaitTime, () {
           _poolPerHost[hostKey].forEach((Connection conn) => conn.open());
           _pendingReconnects.remove(hostKey);
         });
@@ -215,7 +223,6 @@ class SimpleConnectionPool extends ConnectionPool {
         break;
       case EventType.NODE_REMOVED:
       case EventType.NODE_DOWN:
-
         String hostKey = "${message.address.host}:${message.port}";
         Set<Connection> hostConnections = _poolPerHost[hostKey];
 
@@ -223,26 +230,25 @@ class SimpleConnectionPool extends ConnectionPool {
         if (hostConnections == null) {
           return;
         } else if (message.subType == EventType.NODE_REMOVED) {
-          poolLogger.info("Node [${hostKey}] removed from cluster. Purging any existing open connections from pool");
+          poolLogger.info(
+              "Node [${hostKey}] removed from cluster. Purging any existing open connections from pool");
           _poolPerHost.remove(hostKey);
           _pendingReconnects.remove(hostKey);
         } else {
-          poolLogger.info("Node [${hostKey}] went offline. Closing any existing open connections");
+          poolLogger.info(
+              "Node [${hostKey}] went offline. Closing any existing open connections");
           _pendingReconnects.remove(hostKey);
         }
 
         // Force-close any existing connections
-        hostConnections.forEach((Connection conn) => conn.close(drain : false));
+        hostConnections.forEach((Connection conn) => conn.close(drain: false));
 
         // If we lost the connection registered for server events, pick a new one
         if (hostConnections.contains(_eventSubscriber)) {
           _eventSubscription.cancel();
           _eventSubscription = null;
           _eventSubscriber = null;
-          getConnection()
-          .then(_registerEventListener)
-          .catchError((_) {
-          });
+          getConnection().then(_registerEventListener).catchError((_) {});
         }
 
         break;
@@ -254,14 +260,11 @@ class SimpleConnectionPool extends ConnectionPool {
     _poolPerHost[hostKey] = new HashSet<Connection>();
 
     // Allocate poolConfig.connectionsPerHost connections
-    for (int poolIndex = 0; poolIndex < poolConfig.connectionsPerHost; poolIndex++) {
-      Connection conn = new Connection(
-          "${hostKey}-${poolIndex}"
-          , host
-          , port
-          , config : poolConfig
-          , defaultKeyspace : defaultKeyspace
-      );
+    for (int poolIndex = 0;
+        poolIndex < poolConfig.connectionsPerHost;
+        poolIndex++) {
+      Connection conn = new Connection("${hostKey}-${poolIndex}", host, port,
+          config: poolConfig, defaultKeyspace: defaultKeyspace);
 
       _poolPerHost[hostKey].add(conn);
       _pool.add(conn);

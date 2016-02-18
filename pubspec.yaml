@@ -3,6 +3,8 @@ version: 0.1.5
 author: Achilleas Anagnostopoulos
 description: Dart driver for apache Cassandra
 homepage: https://github.com/achilleasa/dart_cassandra_cql
+environment:
+    sdk: ">=1.8.0 <2.0.0"
 dependencies:
   uuid: ">=0.4.1 <0.5.0"
   collection: ">=1.1.0 <2.0.0"

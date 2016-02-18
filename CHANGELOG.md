@@ -1,3 +1,7 @@
+## 0.1.5 (Feb 18, 2016)
+
+Fixed another socket flush race condition ([#2](https://github.com/achilleasa/dart_cassandra_cql/pull/2))
+
 ## 0.1.4 (April 17, 2015)
 
 Added the **preferBiggerTcpPackets** option (defaults to false). When enabled, the driver will

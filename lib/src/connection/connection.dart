@@ -231,15 +231,18 @@ class Connection {
     Completer reply = new Completer();
     // Make sure we have flushed our socket data and then
     // block till we get back a frame writer
-    _socketFlushed
-    .then( (_) => _frameWriterPool.reserve())
-    .then((FrameWriter writer) {
-      _reservedFrameWriters[ writer.getStreamId()] = writer;
-      _pendingResponses[ writer.getStreamId() ] = reply;
-      connectionLogger.fine("[${connId}] [stream #${writer.getStreamId()}] Sending message of type ${Opcode.nameOf(message.opcode)} (${message.opcode}) ${message}");
-      writer.writeMessage(message, _socket, compression : _poolConfig.compression);
-      _socketFlushed = _socket.flush();
-      return _socketFlushed;
+    // We also assign returned future to _socketFlushed to avoid
+    // race conditions on consecutive calls to _writeMessage.
+    _socketFlushed = _socketFlushed
+        .then((_) => _frameWriterPool.reserve())
+        .then((FrameWriter writer) {
+      _reservedFrameWriters[writer.getStreamId()] = writer;
+      _pendingResponses[writer.getStreamId()] = reply;
+      connectionLogger.fine(
+          "[${connId}] [stream #${writer.getStreamId()}] Sending message of type ${Opcode.nameOf(message.opcode)} (${message.opcode}) ${message}");
+      writer.writeMessage(message, _socket,
+          compression: _poolConfig.compression);
+      return _socket.flush();
     })
     .catchError((e, trace) {
       // Wrap SocketExceptions

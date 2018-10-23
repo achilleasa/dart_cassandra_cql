@@ -100,8 +100,8 @@ class MockServer {
       pathSegments = new List.from(pathSegments);
       pathSegments.add("lib");
     }
-    _pathToDumps =
-        "${Platform.pathSeparator}${pathSegments.join(Platform.pathSeparator)}${Platform.pathSeparator}frame_dumps${Platform.pathSeparator}";
+    _pathToDumps = 'test/lib/frame_dumps/';
+//        "${Platform.pathSeparator}${pathSegments.join(Platform.pathSeparator)}${Platform.pathSeparator}frame_dumps${Platform.pathSeparator}";
   }
 
   Future shutdown() {
@@ -115,7 +115,7 @@ class MockServer {
       List<Future> cleanupFutures = []
         ..add(_replayFuture)
         ..addAll(
-            clients.map((Socket client) => new Future.value(client.destroy())))
+            clients.map((Socket client) async => await client.destroy()))
         ..add(_server.close().then((_) =>
             new Future.delayed(new Duration(milliseconds: 20), () => true)));
 

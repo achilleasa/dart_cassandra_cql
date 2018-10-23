@@ -3,7 +3,7 @@ part of dart_cassandra_cql.stream;
 class TypeDecoder {
   int _offset = 0;
   ByteData _buffer;
-  Endianness endianess = Endianness.BIG_ENDIAN;
+  Endian endianess = Endian.big;
   ProtocolVersion protocolVersion;
 
   TypeDecoder.fromBuffer(
@@ -89,7 +89,7 @@ class TypeDecoder {
       }
     }
     _offset += len;
-    return ASCII.decode(new Uint8List.view(_buffer.buffer, _offset - len, len));
+    return ascii.decode(new Uint8List.view(_buffer.buffer, _offset - len, len));
   }
 
   String readString(SizeType size, [int len = null]) {
@@ -100,7 +100,7 @@ class TypeDecoder {
       }
     }
     _offset += len;
-    return UTF8.decode(new Uint8List.view(_buffer.buffer, _offset - len, len));
+    return utf8.decode(new Uint8List.view(_buffer.buffer, _offset - len, len));
   }
 
   Uint8List readBytes(SizeType size, [int len = null]) {
@@ -126,7 +126,7 @@ class TypeDecoder {
 
   Map<String, String> readStringMap(SizeType size) {
     int len = readLength(size);
-    Map map = {};
+    final map = <String, String>{};
     while (len-- > 0) {
       map[readString(size)] = readString(size);
     }
@@ -135,7 +135,7 @@ class TypeDecoder {
 
   Map<String, List<String>> readStringMultiMap(SizeType size) {
     int len = readLength(size);
-    Map map = {};
+    final map = <String, List<String>>{};
     while (len-- > 0) {
       map[readString(size)] = readStringList(size);
     }
@@ -196,7 +196,7 @@ class TypeDecoder {
    * but exploits dart vm support for arbitary long ints to parse varInts of any size
    */
 
-  int readVarInt(SizeType size, [int len = null]) {
+  BigInt readVarInt(SizeType size, [int len = null]) {
     if (len == null) {
       len = readLength(size);
       // Null is defined as a negative length
@@ -228,8 +228,8 @@ class TypeDecoder {
     }
 
     // Assemble final decoded number and apply sign
-    int value = decodeBuffer.fold(
-        0, (int num, int byteValue) => (num << 8) | byteValue);
+    final value = decodeBuffer.fold<BigInt>(BigInt.zero,
+        (BigInt num, int byteValue) => (num << 8) + new BigInt.from(byteValue));
     return value.toSigned(8 * bytesToCopy);
   }
 

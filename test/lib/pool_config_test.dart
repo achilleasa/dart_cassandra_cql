@@ -1,6 +1,6 @@
 library dart_cassandra_cql.tests.pool_config;
 
-import "package:unittest/unittest.dart";
+import "package:test/test.dart";
 
 import '../../lib/dart_cassandra_cql.dart' as cql;
 

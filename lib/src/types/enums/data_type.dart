@@ -144,6 +144,8 @@ class DataType extends Enum<int> {
   static DataType guessForValue(Object value) {
     if (value is bool) {
       return BOOLEAN;
+    } else if (value is BigInt) {
+      return VARINT;
     } else if (value is int) {
       int v = value;
       return v.bitLength <= 32 ? INT : v.bitLength <= 64 ? BIGINT : VARINT;

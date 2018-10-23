@@ -2,7 +2,7 @@ library dart_cassandra_cql.tests.connection;
 
 import "dart:io";
 import "dart:async";
-import "package:unittest/unittest.dart";
+import "package:test/test.dart";
 import "mocks/mocks.dart" as mock;
 import "mocks/compression.dart" as compress;
 import '../../lib/dart_cassandra_cql.dart' as cql;
@@ -49,6 +49,7 @@ main({bool enableLogger: true}) {
         expect(e.message, equals("Could not decode INET type of length 6"));
         expect(trace, isNotNull);
       }
+
       conn
           .open()
           .then((_) => conn.execute(new cql.Query("SELECT * FROM test")))
@@ -65,6 +66,7 @@ main({bool enableLogger: true}) {
       void handleError(e) {
         expect(e, new isInstanceOf<cqlEx.ConnectionFailedException>());
       }
+
       conn.open().catchError(expectAsync(handleError));
     });
 
@@ -80,6 +82,7 @@ main({bool enableLogger: true}) {
         expect(e, new isInstanceOf<cqlEx.StreamReservationException>());
         expect(e.toString(), startsWith("StreamReservationException"));
       }
+
       conn.open().then((_) {
         // Future f1 will grab our stream writer and wait for a server connection
         conn.execute(new cql.Query("SELECT * FROM test")).catchError((_) {});
@@ -166,8 +169,8 @@ main({bool enableLogger: true}) {
           config: config);
       expect(
           conn.open().then((_) {
-        return conn.execute(new cql.Query("SELECT * from test.type_test"));
-      }), completion((cql.RowsResultMessage res) {
+            return conn.execute(new cql.Query("SELECT * from test.type_test"));
+          }), completion((cql.RowsResultMessage res) {
         expect(res.rows.length, equals(1));
         Map<String, Object> row = res.rows.first;
         Map<String, Object> expectedValues = {
@@ -182,7 +185,8 @@ main({bool enableLogger: true}) {
           "text_type": "This is a long UTF8 κείμενο",
           "uuid_type": new cql.Uuid("550e8400-e29b-41d4-a716-446655440000"),
           "varchar_type": "Arbitary long text goes here",
-          "varint_type": -3123091212904812093120938120938120312890
+          "varint_type":
+              BigInt.parse('-3123091212904812093120938120938120312890'),
         };
         expectedValues.forEach((String fieldName, Object fieldValue) {
           expect(row[fieldName], equals(fieldValue));
@@ -199,8 +203,9 @@ main({bool enableLogger: true}) {
           config: config);
       expect(
           conn.open().then((_) {
-        return conn.execute(new cql.Query("SELECT * FROM test.user_profiles"));
-      }), completion((cql.RowsResultMessage res) {
+            return conn
+                .execute(new cql.Query("SELECT * FROM test.user_profiles"));
+          }), completion((cql.RowsResultMessage res) {
         expect(res.rows.length, equals(1));
         Map<String, Object> row = res.rows.first;
         Map<String, Object> expectedValues = {
@@ -311,8 +316,9 @@ main({bool enableLogger: true}) {
 
           expect(
               conn.open().then((_) {
-            return conn.execute(new cql.Query("SELECT * from test.type_test"));
-          }), completion((cql.ResultMessage res) {
+                return conn
+                    .execute(new cql.Query("SELECT * from test.type_test"));
+              }), completion((cql.ResultMessage res) {
             return res is cql.VoidResultMessage;
           }));
         });
@@ -345,8 +351,9 @@ main({bool enableLogger: true}) {
 
           expect(
               conn.open().then((_) {
-            return conn.execute(new cql.Query("SELECT * from test.type_test"));
-          }), completion((cql.ResultMessage res) {
+                return conn
+                    .execute(new cql.Query("SELECT * from test.type_test"));
+              }), completion((cql.ResultMessage res) {
             return res is cql.VoidResultMessage;
           }));
         });

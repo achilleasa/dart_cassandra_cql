@@ -35,9 +35,9 @@ class PasswordAuthenticator implements Authenticator {
 
     // Write user and password separated by a NULL byte
     writer.addLast(separator);
-    writer.addLast(UTF8.encode(_userName));
+    writer.addLast(utf8.encode(_userName));
     writer.addLast(separator);
-    writer.addLast(UTF8.encode(_password));
+    writer.addLast(utf8.encode(_password));
 
     return writer.joinChunks();
   }

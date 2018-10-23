@@ -15,7 +15,7 @@ class AsyncQueue<T> {
    */
 
   Future<T> reserve() {
-    Completer reservation = new Completer();
+    final reservation = new Completer<T>();
     _reservations.add(reservation);
     _dequeue();
 

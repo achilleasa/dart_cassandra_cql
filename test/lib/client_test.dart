@@ -3,7 +3,7 @@ library dart_cassandra_cql.tests.client;
 import "dart:io";
 import "dart:async";
 import "dart:typed_data";
-import "package:unittest/unittest.dart";
+import "package:test/test.dart";
 import "mocks/mocks.dart" as mock;
 import "mocks/custom.dart" as custom;
 import '../../lib/dart_cassandra_cql.dart' as cql;
@@ -33,15 +33,15 @@ main({bool enableLogger: true}) {
   group("Simple connection pool:", () {
     cql.Client client;
 
-    setUp(() {
-      return Future.wait([
+    setUp(() async {
+      await Future.wait([
         server.listen(SERVER_HOST, SERVER_PORT),
         server2.listen(SERVER_HOST, SERVER2_PORT)
       ]);
     });
 
     tearDown(() {
-      List cleanupFutures = [server.shutdown(), server2.shutdown()];
+      final cleanupFutures = <Future>[server.shutdown(), server2.shutdown()];
 
       if (client != null) {
         cleanupFutures.add(client.shutdown(drain: true));
@@ -88,7 +88,7 @@ main({bool enableLogger: true}) {
         client.connectionPool.connect().catchError(expectAsync(handleError));
       });
 
-      test("Connection to at least one node in the pool", () {
+      test("Connection to at least one node in the pool", () async {
         client = new cql.Client.fromHostList([
           "${SERVER_HOST}:${SERVER_PORT}",
           "${SERVER_HOST}:${SERVER_PORT + 3000}"
@@ -97,12 +97,7 @@ main({bool enableLogger: true}) {
                 reconnectWaitTime: new Duration(milliseconds: 1),
                 maxConnectionAttempts: 5));
 
-        void connected(_) {}
-
-        client.connectionPool
-            .connect()
-            .then(expectAsync(connected))
-            .catchError((e) => fail(e));
+        await client.connectionPool.connect();
       });
     });
 
@@ -261,7 +256,7 @@ main({bool enableLogger: true}) {
             "text_type": "This is a long UTF8 κείμενο",
             "uuid_type": new cql.Uuid("550e8400-e29b-41d4-a716-446655440000"),
             "varchar_type": "Arbitary long text goes here",
-            "varint_type": -3123091212904812093120938120938120312890
+            "varint_type": BigInt.parse('-3123091212904812093120938120938120312890'),
           };
           expectedValues.forEach((String fieldName, Object fieldValue) {
             expect(row[fieldName], equals(fieldValue));
@@ -416,7 +411,7 @@ main({bool enableLogger: true}) {
               "text_type": "This is a long UTF8 κείμενο",
               "uuid_type": new cql.Uuid("550e8400-e29b-41d4-a716-446655440000"),
               "varchar_type": "Arbitary long text goes here",
-              "varint_type": -3123091212904812093120938120938120312890
+              "varint_type": BigInt.parse('-3123091212904812093120938120938120312890'),
             };
             expectedValues.forEach((String fieldName, Object fieldValue) {
               expect(row[fieldName], equals(fieldValue));
@@ -835,7 +830,7 @@ INSERT INTO test.type_test (
 
         client
             .execute(query)
-            .then(done)
+            .then((x) => done(x))
             // 2nd statement should trigger a prepare on server2
             .then((_) => client.execute(query))
             .then(expectAsync(done));

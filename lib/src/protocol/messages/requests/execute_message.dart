@@ -18,7 +18,7 @@ class ExecuteMessage extends QueryMessage implements RequestMessage {
     if (bindings is Map) {
       Map bindingsMap = bindings as Map;
       encoder.writeUInt16(bindingsMap.length);
-      bindingsMap.forEach((String arg, Object value) {
+      bindingsMap.forEach((arg, value) {
         encoder.writeTypedValue(arg, value, typeSpec: bindingTypes[arg]);
       });
     } else {

@@ -16,14 +16,14 @@ class CustomJsonEncoder extends Converter<CustomJson, Uint8List> {
   Uint8List convert(CustomJson input) {
     return input.payload == null
         ? null
-        : new Uint8List.fromList(JSON.encode(input.payload).codeUnits);
+        : new Uint8List.fromList(json.encode(input.payload).codeUnits);
   }
 }
 
 class CustomJsonDecoder extends Converter<Uint8List, CustomJson> {
   CustomJson convert(Uint8List input) {
     Map payload =
-        input == null ? null : new JsonDecoder().convert(UTF8.decode(input));
+        input == null ? null : new JsonDecoder().convert(utf8.decode(input));
 
     return new CustomJson(payload);
   }

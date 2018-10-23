@@ -2,7 +2,7 @@ library dart_cassandra_cql.tests.type_guess;
 
 import "dart:typed_data";
 import "dart:io";
-import "package:unittest/unittest.dart";
+import "package:test/test.dart";
 
 import '../../lib/src/types.dart';
 import 'mocks/mocks.dart' as mock;
@@ -103,7 +103,7 @@ main({bool enableLogger: true}) {
     });
 
     test("VARINT", () {
-      expect(DataType.guessForValue(9223372036854775807000000),
+      expect(DataType.guessForValue(BigInt.parse('9223372036854775807000000')),
           equals(DataType.VARINT));
     });
 

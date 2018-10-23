@@ -3,7 +3,7 @@ library dart_cassandra_cql.tests.serialization;
 import "dart:typed_data";
 import "dart:io";
 import "dart:math";
-import "package:unittest/unittest.dart";
+import "package:test/test.dart";
 
 import '../../lib/src/stream.dart';
 import '../../lib/src/types.dart';
@@ -216,14 +216,14 @@ main({bool enableLogger: true}) {
       });
 
       test("String map", () {
-        Map<String, String> input = {"foo": "bar", "baz00ka": "f33df4ce"};
+        final input = <String, String>{"foo": "bar", "baz00ka": "f33df4ce"};
         encoder.writeStringMap(input, size);
         Object output = mock.createDecoder(encoder).readStringMap(size);
         expect(output, equals(input));
       });
 
       test("String multimap", () {
-        Map<String, List<String>> input = {
+        final input = <String, List<String>>{
           "foo": ["bar", "baz"],
           "baz00ka": ["f33df4ce"]
         };
@@ -537,7 +537,7 @@ main({bool enableLogger: true}) {
 
         group("VARINT", () {
           test("(positive)", () {
-            Object input = 12345678901234567890123;
+            final input = BigInt.parse('12345678901234567890123');
             TypeSpec type = new TypeSpec(DataType.VARINT);
             encoder.writeTypedValue('test', input, typeSpec: type, size: size);
             Object output =
@@ -547,7 +547,7 @@ main({bool enableLogger: true}) {
           });
 
           test("(negative)", () {
-            Object input = -987677654324167384628746291873912873;
+            final input = BigInt.parse('-987677654324167384628746291873912873');
             TypeSpec type = new TypeSpec(DataType.VARINT);
             encoder.writeTypedValue('test', input, typeSpec: type, size: size);
             Object output =
@@ -880,7 +880,7 @@ main({bool enableLogger: true}) {
 
         group("VARINT", () {
           test("(positive)", () {
-            Object input = 12345678901234567890123;
+            Object input = BigInt.parse('12345678901234567890123');
             TypeSpec type = new TypeSpec(DataType.VARINT);
             encoder.writeTypedValue('test', input, typeSpec: type, size: size);
             Object output =
@@ -890,7 +890,7 @@ main({bool enableLogger: true}) {
           });
 
           test("(negative)", () {
-            Object input = -987677654324167384628746291873912873;
+            Object input = BigInt.parse('-987677654324167384628746291873912873');
             TypeSpec type = new TypeSpec(DataType.VARINT);
             encoder.writeTypedValue('test', input, typeSpec: type, size: size);
             Object output =

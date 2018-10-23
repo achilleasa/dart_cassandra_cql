@@ -1,6 +1,6 @@
 library dart_cassandra_cql.tests.frame_writer;
 
-import "package:unittest/unittest.dart";
+import "package:test/test.dart";
 import "mocks/mocks.dart" as mock;
 
 import '../../lib/src/types.dart';

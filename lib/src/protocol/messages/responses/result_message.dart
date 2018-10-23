@@ -20,6 +20,7 @@ abstract class ResultMessage extends Message {
       case ResultType.SCHEMA_CHANGE:
         return new SchemaChangeResultMessage.parse(decoder);
     }
+    throw new UnimplementedError('Unknown type: $type');
   }
 
   ResultMetadata _parseMetadata(TypeDecoder decoder) {

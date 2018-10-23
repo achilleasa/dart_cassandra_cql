@@ -16,7 +16,7 @@ class TypeEncoder {
 
   ChunkedOutputWriter _writer;
 
-  Endianness endianess = Endianness.BIG_ENDIAN;
+  Endian endianess = Endian.big;
 
   ProtocolVersion protocolVersion;
 
@@ -107,7 +107,7 @@ class TypeEncoder {
     }
 
     // Convert to UTF-8
-    List<int> bytes = UTF8.encode(value);
+    List<int> bytes = utf8.encode(value);
 
     // Write the length followed by the actual bytes
     writeLength(bytes.length, size);
@@ -161,7 +161,7 @@ class TypeEncoder {
       return;
     }
 
-    Uint8List bytes = new Uint8List.fromList(ASCII.encode(value));
+    Uint8List bytes = new Uint8List.fromList(ascii.encode(value));
 
     // Write the length followed by the actual bytes
     writeLength(value.length, size);
@@ -177,15 +177,16 @@ class TypeEncoder {
     writeBytes(uuid.bytes, size);
   }
 
-  void _writeVarInt(int value, SizeType size) {
-    List<int> bytes = [];
-    for (int bits = value.bitLength; bits > 0; bits -= 8, value >>= 8) {
-      bytes.add(value & 0xFF);
+  void _writeVarInt(BigInt value, SizeType size) {
+    int bl = value.bitLength;
+    int mod = bl & 0x07;
+    bl = bl - mod + 8;
+    final str = value.toUnsigned(bl).toRadixString(16);
+    final bytes = <int>[];
+    for (int i = 0; i < str.length; i += 2) {
+      bytes.add(int.parse(str.substring(i, i + 2), radix: 16));
     }
-    if (value < 0) {
-      bytes.add(0xFF);
-    }
-    writeBytes(new Uint8List.fromList(bytes.reversed.toList()), size);
+    writeBytes(new Uint8List.fromList(bytes), size);
   }
 
   void _writeDecimal(num value, SizeType size) {

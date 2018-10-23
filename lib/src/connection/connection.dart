@@ -23,7 +23,7 @@ class Connection {
   Map<int, FrameWriter> _reservedFrameWriters = new Map<int, FrameWriter>();
 
   // Tracked futures/streams
-  Map<int, Completer> _pendingResponses;
+  Map<int, Completer<Message>> _pendingResponses;
   Completer _connected;
   Completer _drained;
   Future _socketFlushed;
@@ -34,7 +34,7 @@ class Connection {
     _poolConfig = config == null ? new PoolConfiguration() : config;
 
     // Initialize pending futures list
-    _pendingResponses = new Map<int, Completer>();
+    _pendingResponses = new Map<int, Completer<Message>>();
   }
 
   StreamController _eventController;
@@ -225,8 +225,8 @@ class Connection {
    * completed with the query results or with an error if one occurs
    */
 
-  Future _writeMessage(RequestMessage message) {
-    Completer reply = new Completer();
+  Future<Message> _writeMessage(RequestMessage message) {
+    final reply = new Completer<Message>();
     // Make sure we have flushed our socket data and then
     // block till we get back a frame writer
     // We also assign returned future to _socketFlushed to avoid
@@ -263,7 +263,7 @@ class Connection {
         "[${connId}] [stream #${message.streamId}] Received message of type ${Opcode.nameOf(message.opcode)} (${message.opcode}) ${message}");
 
     // Fetch our response completer
-    Completer responseCompleter = _pendingResponses[message.streamId];
+    final responseCompleter = _pendingResponses[message.streamId];
 
     // Release streamId back to the pool unless its -1 (server event message)
     if (message.streamId != -1) {
@@ -406,7 +406,7 @@ class Connection {
   }
 
   Future<PreparedResultMessage> prepare(Query query) {
-    return open().then((_) {
+    return open().then((_) async {
       // V2 version of the protocol does not support named placeholders. We need to convert them
       // to positional ones before preparing the statements
       PrepareMessage message = new PrepareMessage()
@@ -414,7 +414,7 @@ class Connection {
             ? query.positionalQuery
             : query.query;
 
-      return _writeMessage(message);
+      return (await _writeMessage(message)) as PreparedResultMessage;
     });
   }
 
@@ -431,7 +431,7 @@ class Connection {
       {PreparedResultMessage preparedResult: null,
       int pageSize: null,
       Uint8List pagingState: null}) {
-    return open().then((_) {
+    return open().then((_) async {
       // Simple unprepared query
       if (preparedResult == null) {
         QueryMessage message = new QueryMessage()
@@ -442,7 +442,7 @@ class Connection {
           ..resultPageSize = pageSize
           ..pagingState = pagingState;
 
-        return _writeMessage(message);
+        return await _writeMessage(message);
       } else {
         // Prepared query. V2 of the protocol does not support named bindings so we need to
         // map them to positional ones
@@ -457,7 +457,7 @@ class Connection {
           ..resultPageSize = pageSize
           ..pagingState = pagingState;
 
-        return _writeMessage(message);
+        return await _writeMessage(message);
       }
     });
   }
@@ -467,14 +467,14 @@ class Connection {
    */
 
   Future<ResultMessage> executeBatch(BatchQuery query) {
-    return open().then((_) {
+    return open().then((_) async {
       BatchMessage message = new BatchMessage()
         ..type = query.type
         ..consistency = query.consistency
         ..serialConsistency = query.serialConsistency
         ..queryList = query.queryList;
 
-      return _writeMessage(message);
+      return await _writeMessage(message);
     });
   }
 

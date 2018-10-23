@@ -2,7 +2,7 @@ library dart_cassandra_cql.tests.query;
 
 import "dart:typed_data";
 import "dart:io";
-import "package:unittest/unittest.dart";
+import "package:test/test.dart";
 
 import '../../lib/dart_cassandra_cql.dart' as cql;
 import "mocks/mocks.dart" as mock;

@@ -1,6 +1,6 @@
 part of dart_cassandra_cql.client;
 
-typedef Future PagedQueryExecutor(Query query,
+typedef Future<ResultMessage> PagedQueryExecutor(Query query,
     {int pageSize, Uint8List pagingState});
 
 class ResultStream {
@@ -19,7 +19,8 @@ class ResultStream {
     _buffering = true;
 
     _queryExecutor(_query, pageSize: _pageSize, pagingState: _pagingState)
-        .then((RowsResultMessage data) {
+        .then((ResultMessage odata) {
+          RowsResultMessage data = odata;
           // If the stream has been closed, clean up
           if (_streamController.isClosed) {
             return;

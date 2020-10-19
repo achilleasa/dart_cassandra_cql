@@ -20,7 +20,7 @@ class HeaderVersion extends Enum<int> {
                 : value == RESPONSE_V3._value ? RESPONSE_V3 : null;
 
     if (fromValue == null) {
-      throw new ArgumentError(
+      throw ArgumentError(
           "Invalid version value 0x${value.toRadixString(16)}");
     }
     return fromValue;

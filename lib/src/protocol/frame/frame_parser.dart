@@ -1,14 +1,14 @@
 part of dart_cassandra_cql.protocol;
 
 class FrameParser {
-  final ChunkedInputReader _inputBuffer = new ChunkedInputReader();
+  final ChunkedInputReader _inputBuffer = ChunkedInputReader();
   FrameHeader _parsedHeader;
   Uint8List _bodyData;
   int _bodyWriteOffset = 0;
   int _headerSizeInBytes;
   ProtocolVersion _protocolVersion;
 
-  void handleData(List<int> chunk, EventSink<Frame> sink) {
+  void handleData(Uint8List chunk, EventSink<Frame> sink) {
     try {
       // Append incoming chunk to input buffer
       if (chunk != null) {
@@ -38,22 +38,22 @@ class FrameParser {
         }
 
         // Extract header bytes and parse them
-        Uint8List headerBytes = new Uint8List(_headerSizeInBytes);
+        Uint8List headerBytes = Uint8List(_headerSizeInBytes);
         _inputBuffer.read(headerBytes, _headerSizeInBytes);
-        //dump = new File("${new DateTime.now()}.dump");
+        //dump = File("${DateTime.now()}.dump");
         //dump.writeAsBytesSync(headerBytes);
-        _parsedHeader = new TypeDecoder.fromBuffer(
-                new ByteData.view(headerBytes.buffer), _protocolVersion)
+        _parsedHeader = TypeDecoder.fromBuffer(
+                ByteData.view(headerBytes.buffer), _protocolVersion)
             .readHeader();
         headerBytes = null;
 
         if (_parsedHeader.length > FrameHeader.MAX_LENGTH_IN_BYTES) {
-          throw new DriverException(
+          throw DriverException(
               "Frame size cannot be larger than ${FrameHeader.MAX_LENGTH_IN_BYTES} bytes. Attempted to read ${_parsedHeader.length} bytes");
         }
 
         // Allocate buffer for body and reset write offset
-        _bodyData = new Uint8List(_parsedHeader.length);
+        _bodyData = Uint8List(_parsedHeader.length);
         _bodyWriteOffset = 0;
       } else {
         // Copy pending body data
@@ -66,10 +66,10 @@ class FrameParser {
         // Ignore messages with unknown opcodes
         if (_parsedHeader.opcode != null) {
           //dump.writeAsBytesSync(_bodyData, mode : FileMode.APPEND);
-          sink.add(new Frame.fromParts(
-              _parsedHeader, new ByteData.view(_bodyData.buffer)));
+          sink.add(Frame.fromParts(
+              _parsedHeader, ByteData.view(_bodyData.buffer)));
         } else {
-          throw new DriverException(
+          throw DriverException(
               "Unknown frame with opcode 0x${_parsedHeader.unknownOpcodeValue.toRadixString(16)} and payload size 0x${_parsedHeader.length}");
         }
         _parsedHeader = null;
@@ -85,7 +85,7 @@ class FrameParser {
       }
     } catch (e, trace) {
       // / Emit an exception message
-      ExceptionMessage message = new ExceptionMessage(e,
+      ExceptionMessage message = ExceptionMessage(e,
           e is DriverException && e.stackTrace != null ? e.stackTrace : trace);
       message.streamId = _parsedHeader.streamId;
 
@@ -106,8 +106,8 @@ class FrameParser {
     sink.addError(error, stackTrace);
   }
 
-  StreamTransformer<List<int>, Frame> get transformer =>
-      new StreamTransformer<List<int>, Frame>.fromHandlers(
+  StreamTransformer<Uint8List, Frame> get transformer =>
+      StreamTransformer<Uint8List, Frame>.fromHandlers(
           handleData: handleData,
           handleDone: handleDone,
           handleError: handleError);

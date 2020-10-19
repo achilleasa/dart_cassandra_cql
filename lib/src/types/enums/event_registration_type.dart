@@ -20,7 +20,7 @@ class EventRegistrationType extends Enum<String> {
             : value == SCHEMA_CHANGE._value ? SCHEMA_CHANGE : null;
 
     if (fromValue == null) {
-      throw new ArgumentError("Invalid event registration value ${value}");
+      throw ArgumentError("Invalid event registration value ${value}");
     }
     return fromValue;
   }

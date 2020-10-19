@@ -5,7 +5,7 @@ abstract class ConnectionPool {
 
   PoolConfiguration poolConfig;
   StreamController<EventMessage> _eventStreamController =
-      new StreamController<EventMessage>.broadcast();
+      StreamController<EventMessage>.broadcast();
 
   /**
    * Establish connections to the pool nodes and return a [Future] to be successfully completed when

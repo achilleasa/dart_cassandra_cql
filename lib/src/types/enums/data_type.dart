@@ -1,7 +1,7 @@
 part of dart_cassandra_cql.types;
 
 class DataType extends Enum<int> {
-  static final RegExp _UUID_REGEX = new RegExp(
+  static final RegExp _UUID_REGEX = RegExp(
       r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
       caseSensitive: false);
 
@@ -84,7 +84,7 @@ class DataType extends Enum<int> {
                                                                                 : value == SET._value ? SET : value == UDT._value ? UDT : value == TUPLE._value ? TUPLE : null;
 
     if (fromValue == null) {
-      throw new ArgumentError(
+      throw ArgumentError(
           "Invalid datatype value 0x${value.toRadixString(16)}");
     }
     return fromValue;
@@ -144,6 +144,8 @@ class DataType extends Enum<int> {
   static DataType guessForValue(Object value) {
     if (value is bool) {
       return BOOLEAN;
+    } else if (value is BigInt) {
+      return VARINT;
     } else if (value is int) {
       int v = value;
       return v.bitLength <= 32 ? INT : v.bitLength <= 64 ? BIGINT : VARINT;

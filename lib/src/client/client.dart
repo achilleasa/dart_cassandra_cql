@@ -1,20 +1,22 @@
 part of dart_cassandra_cql.client;
 
 class Client {
-  ConnectionPool connectionPool;
+  final ConnectionPool connectionPool;
   final Map<String, Future<PreparedResultMessage>> preparedQueries =
-      new Map<String, Future<PreparedResultMessage>>();
+      Map<String, Future<PreparedResultMessage>>();
 
   /**
    * Create a new client and a [SimpleConnectionPool] to the supplied [hosts] optionally using
-   * the supplied [poolConfig]. If [poolConfig] is not specified, a default configuration will be used insted.
-   * If a [defaultKeyspace] is provided, it will be autoselected during the handshake phase of each pool connection
+   * the supplied [poolConfig]. If [poolConfig] is not specified, a default configuration will be used instead.
+   * If a [defaultKeyspace] is provided, it will be auto selected during the handshake phase of each pool connection
    */
 
-  Client.fromHostList(List<String> hosts,
+  factory Client.fromHostList(List<String> hosts,
       {String defaultKeyspace, PoolConfiguration poolConfig}) {
-    connectionPool = new SimpleConnectionPool.fromHostList(
-        hosts, poolConfig == null ? new PoolConfiguration() : poolConfig,
+    final connectionPool = SimpleConnectionPool.fromHostList(
+        hosts, poolConfig == null ? PoolConfiguration() : poolConfig,
+        defaultKeyspace: defaultKeyspace);
+    return new Client.withPool(connectionPool,
         defaultKeyspace: defaultKeyspace);
   }
 
@@ -22,7 +24,7 @@ class Client {
    * Create a new client with an already setup [connectionPool]. If a [defaultKeyspace]
    * is provided, it will be auto-selected during the handshake phase of each pool connection.
    */
-  Client.withPool(ConnectionPool this.connectionPool, {String defaultKeyspace});
+  Client.withPool(this.connectionPool, {String defaultKeyspace});
 
   /**
    * Execute a [Query] or [BatchQuery] and return back a [Future<ResultMessage>]. Depending on
@@ -42,9 +44,9 @@ class Client {
    * Execute a select query and return back a [Iterable] of [Map<String, Object>] with the
    * result rows.
    */
-  Future<Iterable<Map<String, Object>>> query(Query query) {
+  Future<Iterable<Map<String, Object>>> query(Query query) async {
     // Run query and return back
-    return _executeSingle(query).then((RowsResultMessage res) => res.rows);
+    return (await _executeSingle(query)).rows;
   }
 
   /**
@@ -53,7 +55,7 @@ class Client {
    * demand. The result page size is controlled by the [pageSize] parameter (defaults to 100 rows).
    */
   Stream<Map<String, Object>> stream(Query query, {int pageSize: 100}) {
-    return new ResultStream(_executeSingle, query, pageSize).stream;
+    return ResultStream(_executeSingle, query, pageSize).stream;
   }
 
   /**
@@ -77,7 +79,7 @@ class Client {
     }
 
     // Queue for preparation and return back a future
-    Future deferred = connectionPool
+    final deferred = connectionPool
         .getConnection()
         .then((Connection conn) => conn.prepare(query));
     preparedQueries[query.query] = deferred;
@@ -89,8 +91,8 @@ class Client {
    * and return back a [Future<ResultMessage>]
    */
   Future<ResultMessage> _executeSingle(Query query,
-      {int pageSize: null, Uint8List pagingState: null}) {
-    Completer completer = new Completer();
+      {int pageSize: null, Uint8List pagingState: null}) async {
+    final completer = Completer<ResultMessage>();
 
     // If this is a normal query, pick the next available pool connection and execute it
     if (!query.prepared) {
@@ -110,7 +112,7 @@ class Client {
       }
 
       _execute();
-      return completer.future;
+      return await completer.future;
     }
 
     void _prepareAndExecute() {
@@ -137,8 +139,9 @@ class Client {
           // Any other error will cause the future to fail
           .catchError(completer.completeError);
     }
+
     _prepareAndExecute();
-    return completer.future;
+    return await completer.future;
   }
 
   /**

@@ -64,7 +64,7 @@ class Opcode extends Enum<int> {
                                                                     : null;
 
     if (fromValue == null) {
-      throw new ArgumentError(
+      throw ArgumentError(
           "Invalid opcode value 0x${value.toRadixString(16)}");
     }
     return fromValue;

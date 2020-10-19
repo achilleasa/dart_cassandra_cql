@@ -41,7 +41,7 @@ class Query extends QueryInterface {
    */
 
   String get expandedQuery {
-    StringBuffer buffer = new StringBuffer();
+    StringBuffer buffer = StringBuffer();
     // If no bindings are specified return the original query string
     if (_bindings == null) {
       return _query;
@@ -61,13 +61,13 @@ class Query extends QueryInterface {
       return _positionalQuery;
     }
 
-    _namedToPositionalBindings = new List<String>();
-    StringBuffer buffer = new StringBuffer();
+    _namedToPositionalBindings = List<String>();
+    StringBuffer buffer = StringBuffer();
     int blockStart = 0;
     int offset = 0;
     bool insideLiteral = false;
     RegExp placeholderRegex =
-        new RegExp(":[a-zA-Z0-9_]+", caseSensitive: false);
+        RegExp(":[a-zA-Z0-9_]+", caseSensitive: false);
     for (; offset < _query.length; offset++) {
       if (_query[offset] == "'") {
         insideLiteral = !insideLiteral;
@@ -84,7 +84,7 @@ class Query extends QueryInterface {
         // Capture placeholder name
         Match placeholderMatch = placeholderRegex.matchAsPrefix(_query, offset);
         if (placeholderMatch == null) {
-          throw new ArgumentError(
+          throw ArgumentError(
               "Expected named placeholder to begin at offset $offset");
         }
         String name = placeholderMatch.group(0).substring(1);
@@ -112,7 +112,7 @@ class Query extends QueryInterface {
 
   set bindings(Object value) {
     if (value != null && (value is! Iterable) && (value is! Map)) {
-      throw new ArgumentError("Bindings should be either an Iterable or a Map");
+      throw ArgumentError("Bindings should be either an Iterable or a Map");
     }
     this._bindings = value;
   }
@@ -129,10 +129,10 @@ class Query extends QueryInterface {
 
     // Map named bindings to positional
     Map bindingsMap = _bindings as Map;
-    return new List.generate(_namedToPositionalBindings.length, (argIndex) {
+    return List.generate(_namedToPositionalBindings.length, (argIndex) {
       String name = _namedToPositionalBindings[argIndex];
       if (!bindingsMap.containsKey(name)) {
-        throw new ArgumentError(
+        throw ArgumentError(
             "Missing binding for named placeholder '$name'");
       }
       return bindingsMap[name];
@@ -159,7 +159,7 @@ class Query extends QueryInterface {
         }
 
         if (bindingList.length <= bindingIndex) {
-          throw new ArgumentError(
+          throw ArgumentError(
               "Missing argument '${bindingIndex}' from bindings list");
         }
 
@@ -182,7 +182,7 @@ class Query extends QueryInterface {
     int offset = 0;
     bool insideLiteral = false;
     RegExp placeholderRegex =
-        new RegExp(":[a-zA-Z0-9_]+", caseSensitive: false);
+        RegExp(":[a-zA-Z0-9_]+", caseSensitive: false);
     for (; offset < _query.length; offset++) {
       if (_query[offset] == "'") {
         insideLiteral = !insideLiteral;
@@ -199,12 +199,12 @@ class Query extends QueryInterface {
         // Capture placeholder name
         Match placeholderMatch = placeholderRegex.matchAsPrefix(_query, offset);
         if (placeholderMatch == null) {
-          throw new ArgumentError(
+          throw ArgumentError(
               "Expected named placeholder to begin at offset $offset");
         }
         String name = placeholderMatch.group(0).substring(1);
         if (!bindingMap.containsKey(name)) {
-          throw new ArgumentError(
+          throw ArgumentError(
               "Missing binding for named placeholder '$name'");
         }
 
@@ -224,7 +224,7 @@ class Query extends QueryInterface {
   }
 
   StringBuffer _bytesToHex(Uint8List bytes) {
-    StringBuffer buffer = new StringBuffer();
+    StringBuffer buffer = StringBuffer();
     buffer.write("0x");
     bytes.forEach((int b) {
       buffer.write(_byteToChar[(b & 0xf0) >> 4]);
@@ -237,7 +237,7 @@ class Query extends QueryInterface {
     if (value == null) {
       return "null";
     } else if (value is String) {
-      StringBuffer buffer = new StringBuffer();
+      StringBuffer buffer = StringBuffer();
       buffer.write(r"'");
       // Escape single quotes
       buffer.write(value.replaceAll(r"'", r"''"));
@@ -256,19 +256,19 @@ class Query extends QueryInterface {
 
       Codec<Object, Uint8List> codec = getCodec(value.customTypeClass);
       if (codec == null) {
-        throw new ArgumentError(
+        throw ArgumentError(
             "No custom type codec specified for type with class: ${value.customTypeClass}");
       }
 
-      StringBuffer buffer = new StringBuffer();
+      StringBuffer buffer = StringBuffer();
       codec.encode(value).forEach(buffer.writeCharCode);
 
-      return new StringBuffer()
+      return StringBuffer()
         ..write(r"'")
         ..write(buffer.toString().replaceAll(r"'", r"''"))
         ..write(r"'");
     } else if (value is TypedData) {
-      Uint8List v = new Uint8List.view(value.buffer, 0, value.lengthInBytes);
+      Uint8List v = Uint8List.view(value.buffer, 0, value.lengthInBytes);
 
       if (v.lengthInBytes == 0) {
         return "null";
@@ -277,7 +277,7 @@ class Query extends QueryInterface {
       return _bytesToHex(v);
     } else if (value is Tuple) {
       Tuple tuple = value;
-      StringBuffer buffer = new StringBuffer();
+      StringBuffer buffer = StringBuffer();
       buffer.write("(");
       if (tuple != null) {
         buffer.write(tuple.map(_typeToString).join(","));
@@ -285,13 +285,13 @@ class Query extends QueryInterface {
       buffer.write(")");
       return buffer;
     } else if (value is Iterable) {
-      StringBuffer buffer = new StringBuffer();
+      StringBuffer buffer = StringBuffer();
       buffer.write("[");
       buffer.writeAll(value.map(_typeToString), ",");
       buffer.write("]");
       return buffer;
     } else if (value is Map) {
-      Map map = new LinkedHashMap();
+      Map map = LinkedHashMap();
       value.forEach((Object k, Object v) {
         map[_typeToString(k)] = _typeToString(v);
       });

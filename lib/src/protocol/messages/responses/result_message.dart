@@ -1,6 +1,9 @@
 part of dart_cassandra_cql.protocol;
 
 abstract class ResultMessage extends Message {
+  ResultMetadata metadata;
+  List<Map<String, Object>> rows;
+
   ResultMessage() : super(Opcode.RESULT);
 
   factory ResultMessage.parse(TypeDecoder decoder) {
@@ -8,22 +11,23 @@ abstract class ResultMessage extends Message {
     ResultType type = ResultType.valueOf(decoder.readUInt());
     switch (type) {
       case ResultType.VOID:
-        return new VoidResultMessage();
+        return VoidResultMessage();
       case ResultType.ROWS:
         //decoder.dumpToFile("frame-response-rows.dump");
-        return new RowsResultMessage.parse(decoder);
+        return RowsResultMessage.parse(decoder);
       case ResultType.SET_KEYSPACE:
-        return new SetKeyspaceResultMessage.parse(decoder);
+        return SetKeyspaceResultMessage.parse(decoder);
       case ResultType.PREPARED:
         //decoder.dumpToFile("frame-response-prepared.dump");
-        return new PreparedResultMessage.parse(decoder);
+        return PreparedResultMessage.parse(decoder);
       case ResultType.SCHEMA_CHANGE:
-        return new SchemaChangeResultMessage.parse(decoder);
+        return SchemaChangeResultMessage.parse(decoder);
     }
+    throw new UnimplementedError('Unknown type: $type');
   }
 
   ResultMetadata _parseMetadata(TypeDecoder decoder) {
-    ResultMetadata metadata = new ResultMetadata();
+    ResultMetadata metadata = ResultMetadata();
 
     int flags = metadata.flags = decoder.readUInt();
     bool globalTableSpec = (flags & RowResultFlag.GLOBAL_TABLE_SPEC.value) ==
@@ -45,7 +49,7 @@ abstract class ResultMessage extends Message {
     }
 
     // Parse column specs
-    metadata.colSpec = new LinkedHashMap<String, TypeSpec>();
+    metadata.colSpec = LinkedHashMap<String, TypeSpec>();
     for (int colIndex = colCount; colIndex > 0; colIndex--) {
       // Skip over col-specific table spec (<keyspace><table name>)
       if (!globalTableSpec) {

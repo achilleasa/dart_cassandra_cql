@@ -7,6 +7,14 @@ Dart driver for [Apache Cassandra](http://Cassandra.apache.org/) that supports C
 
 The driver has a small dependency tree and implements Cassandra binary protocol (versions 2 and 3) for communicating with Cassandra servers. The protocol and CQL versions to be used are both configurable by the user.
 
+# Installation
+add the following dependency to install this plugin:\
+```yaml
+dependency:
+  dart_cassandra_cql:
+    git: https://github.com/Sparks1998/dart_cassandra_cql
+```
+
 # Features
  - Asynchronous API based on [Future](https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart:async.Future) and [Streams](https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart-async.Stream)
  - Connection management via connection pools
@@ -25,26 +33,26 @@ import 'package:dart_cassandra_cql/dart_cassandra_cql.dart' as cql;
 
 void main() {
   // Create a client for connecting to our cluster using native
-  // protocol V2 and sensible defaults. The client will setup
+  // protocol V3 and sensible defaults. The client will setup
   // a connection pool for you and connect automatically when
   // you execute a query.
-  cql.Client client = new cql.Client.fromHostList([
+  cql.Client client = cql.Client.fromHostList([
       "10.0.0.1:9042"
       , "10.0.0.2:9042"
   ]);
 
   // Perform a select with positional bindings
   client.query(
-      new cql.Query("SELECT * from test.type_test WHERE id=?", bindings : [123])
+      cql.Query("SELECT * from test.type_test WHERE id=?", bindings : [123])
   ).then((Iterable<Map<String, Object>> rows) {
     // ...
   });
 
   // Perform an prepared insert with named bindings, a time-based uuid and tuneable consistency
   client.execute(
-      new cql.Query("INSERT INTO test.type_test (id, uuid_value) VALUES (:id, :uuid)", bindings : {
+      cql.Query("INSERT INTO test.type_test (id, uuid_value) VALUES (:id, :uuid)", bindings : {
           "id" : 1
-          , "uuid" : new cql.Uuid.timeBased()
+          , "uuid" : cql.Uuid.timeBased()
       }, consistency : cql.Consistency.LOCAL_QUORUM
        , prepared : true)
   ).then((cql.ResultMessage res) {
@@ -53,17 +61,17 @@ void main() {
 
   // Perform a batch insert query
   client.execute(
-      new cql.BatchQuery()
+      cql.BatchQuery()
         ..add(
-          new cql.Query("INSERT INTO test.type_test (id, uuid_value) VALUES (:id, :uuid)", bindings : {
+          cql.Query("INSERT INTO test.type_test (id, uuid_value) VALUES (:id, :uuid)", bindings : {
               "id" : 1
-              , "uuid" : new cql.Uuid.timeBased()
+              , "uuid" : cql.Uuid.timeBased()
           })
       )
         ..add(
-          new cql.Query("INSERT INTO test.type_test (id, uuid_value) VALUES (:id, :uuid)", bindings : {
+          cql.Query("INSERT INTO test.type_test (id, uuid_value) VALUES (:id, :uuid)", bindings : {
               "id" : 2
-              , "uuid" : new cql.Uuid.timeBased()
+              , "uuid" : cql.Uuid.timeBased()
           })
       )
         ..consistency = cql.Consistency.TWO
@@ -76,7 +84,7 @@ void main() {
   // Stream (paginated) query
   StreamSubscription sub;
   sub = client.stream(
-      new cql.Query("SELECT * from test.type_test")
+      cql.Query("SELECT * from test.type_test")
       , pageSize : 200
   ).listen((Map<String, Object> row) {
     // Handle incoming row

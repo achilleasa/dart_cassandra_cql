@@ -1,7 +1,7 @@
 part of dart_cassandra_cql.types;
 
 // Helpers
-_uuidImpl.Uuid _uuidFactory = new _uuidImpl.Uuid();
+_uuidImpl.Uuid _uuidFactory = _uuidImpl.Uuid();
 
 class Uuid {
   String value;
@@ -17,14 +17,14 @@ class Uuid {
    * Create a V4 (randomised) uuid
    */
   factory Uuid.simple() {
-    return new Uuid(_uuidFactory.v4());
+    return Uuid(_uuidFactory.v4());
   }
 
   /**
    * Create a V1 (time-based) uuid
    */
   factory Uuid.timeBased() {
-    return new Uuid(_uuidFactory.v1());
+    return Uuid(_uuidFactory.v1());
   }
 
   String toString() {
@@ -40,5 +40,5 @@ class Uuid {
    * Convert uuid to a [Uint8List] byte list
    */
 
-  get bytes => new Uint8List.fromList(_uuidFactory.parse(value));
+  get bytes => Uint8List.fromList(_uuidFactory.parse(value));
 }

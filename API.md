@@ -14,7 +14,7 @@ In all other cases, the driver performs *automatic inline expansion* of each bou
 |ascii          | String
 |bigint         | int
 |blob           | [Uint8List](https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart-typed_data.Uint8List)
-|boolea         | bool
+|boolean         | bool
 |counter        | int
 |decimal        | int or double
 |double         | double
@@ -29,7 +29,7 @@ In all other cases, the driver performs *automatic inline expansion* of each bou
 |uuid           | [Uuid](#uuids)
 |timeuuid       | [Uuid](#uuids)
 |varchar        | String
-|varint         | int
+|varint         | BigInt
 |UDT            | LinkedHashMap. See the section on [UDTs](#user-defined-types)
 |tuple          | [Tuple](#tuples)
 |custom         | [Uint8List](https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart-typed_data.Uint8List) or type instance implementing [CustomType](#custom-types)
@@ -39,8 +39,8 @@ In all other cases, the driver performs *automatic inline expansion* of each bou
 The [Uuid](https://github.com/achilleasa/dart_cassandra_cql/blob/master/lib/src/types/uuid.dart) class provides a wrapper around UUIDs and provides factory constructors for generating simple and time-based UUIDs.
 
 ```dart
-Uuid simpleUuid = new Uuid.simple();
-Uuid timeUuid = new Uuid.timeBased();
+Uuid simpleUuid = Uuid.simple();
+Uuid timeUuid = Uuid.timeBased();
 ```
 
 If you have some externally generated UUIDs that you wish to pass to a Cassandra query you can either pass them as a ```String``` or wrap them with a Uuid object:
@@ -60,7 +60,7 @@ Whenever you need to use a ```tuple``` type in your queries or read it from a qu
 This class is essentially a decorated ```List<Object>```. You can instanciate a ```Tuple``` object from any ```Iterable``` using the ```fromIterable``` named constructor. Here is an example:
 
 ```dart
-Tuple tuple = new Tuple.fromIterable([1, "test", 3.14]);
+Tuple tuple = Tuple.fromIterable([1, "test", 3.14]);
 ```
 
 ### Custom types
@@ -82,7 +82,7 @@ This interface defines a *getter* for querying the fully qualified Java class na
 You will also need to register a ```Codec<Uint8List, CustomType>``` for handing the actual serialization/de-serialization. To register the codec you will need to invoke the globally available ```registerCodec``` method as follows:
 
 ```dart
-registerCodec('fully.qualified.java.class.name', new MyCustomTypeCodec() );
+registerCodec('fully.qualified.java.class.name', MyCustomTypeCodec() );
 ```
 
 After this step, the driver will automatically invoke the codec whenever it encounters a custom type with this class name while parsing query results or whenever an ```CustomType``` object instance of this type is bound to a query.
@@ -173,12 +173,12 @@ import "package:dart_cassandra_cql/dart_cassandra_cql.dart" as cql;
 import "mocks/lz4.dart" as compress;
 
 int main() {
-  cql.registerCodec(cql.Compression.LZ4.value, new compress.LZ4Codec());
+  cql.registerCodec(cql.Compression.LZ4.value, compress.LZ4Codec());
 
   // This client will now use LZ4 compression when talking to Cassandra
-  cql.Client client = new cql.Client.fromHostList(
+  cql.Client client = cql.Client.fromHostList(
       ['10.0.0.1']
-      , poolConfig : new cql.PoolConfiguration(
+      , poolConfig : cql.PoolConfiguration(
           protocolVersion : cql.ProtocolVersion.V2
           , compression : cql.Compression.LZ4
       )
@@ -207,12 +207,12 @@ To define a single query, the driver provides the [Query](https://github.com/ach
 Here are some examples:
 
 ```dart
-new cql.Query(
+cql.Query(
   "SELECT * FROM test.test_table WHERE id=? AND alt_id=?"
   , bindings : [ 1, 2 ]
 );
 
-new cql.Query(
+cql.Query(
   "SELECT * FROM test.test_table WHERE id=:id AND alt_id=:id"
   , bindings : { "id" : 1 }
   , consistency : cql.Consistency.ONE
@@ -230,12 +230,12 @@ If you need to execute a batch query, the driver provides the [BatchQuery](https
 The ```BatchQuery``` class provides the ```add( Query query)``` method for appending individual ```Query``` instances to the batch. Keep in mind that when useing batch queries, the ```consistency``` and ```serialConsistency``` settings of the ```BatchQuery``` object override any individual consistency settings specified by the appended ```Query``` objects. Here is an example:
 
 ```dart
-new cql.BatchQuery(consistency: cql.Consistency.TWO)
-  ..add(new cql.Query(
+cql.BatchQuery(consistency: cql.Consistency.TWO)
+  ..add(cql.Query(
     "INSERT INTO test.test_table (id, alt_id) VALUES (?, ?)"
     , bindings : [ 1, 2 ]
   ))
-  ..add(new cql.Query(
+  ..add(cql.Query(
     "INSERT INTO test.test_table (id, alt_id) VALUES (:id, :id)"
     , bindings : {"id" : 1}
   ));
@@ -266,7 +266,7 @@ To use native pagination you need to invoke the ```execute``` method with your s
 To retrieve the next set of rows you need to invoke once again the ```execute``` method with the same ```pageSize``` value as before and the ```pagingState``` named parameter set to the value obtained by the previous method invocation. Here is an example:
 
 ```dart
-cql.Query query = new cql.Query("SELECT * from really_big_dataset");
+cql.Query query = cql.Query("SELECT * from really_big_dataset");
 client
   .execute(query, pageSize : 10)
   .then((cql.RowsResultMessage result) {
@@ -291,7 +291,7 @@ The underlying StreamController buffers the rows for each page on-demand and emi
 
 ```dart
 client.stream(
-       new cql.Query("SELECT * FROM really_big_dataset")
+       cql.Query("SELECT * FROM really_big_dataset")
        , pageSize: 20
 ).listen( (Map<String, Object> row) => print );
 ```

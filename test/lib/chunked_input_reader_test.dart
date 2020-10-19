@@ -1,6 +1,6 @@
 library dart_cassandra_cql.tests.chunked_input_reader;
 
-import "package:unittest/unittest.dart";
+import "package:test/test.dart";
 
 import '../../lib/src/stream.dart';
 

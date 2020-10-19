@@ -31,7 +31,7 @@ class EventType extends Enum<String> {
                                 : null;
 
     if (fromValue == null) {
-      throw new ArgumentError("Invalid event value ${value}");
+      throw ArgumentError("Invalid event value ${value}");
     }
     return fromValue;
   }

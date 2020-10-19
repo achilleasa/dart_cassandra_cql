@@ -43,7 +43,7 @@ class Consistency extends Enum<int> {
                                                 : null;
 
     if (fromValue == null) {
-      throw new ArgumentError(
+      throw ArgumentError(
           "Invalid consistency value 0x${value.toRadixString(16)}");
     }
     return fromValue;

@@ -15,10 +15,10 @@ class ExecuteMessage extends QueryMessage implements RequestMessage {
    */
 
   void _writeBindings(TypeEncoder encoder) {
-    if (bindings is Map) {
-      Map bindingsMap = bindings as Map;
+    if (bindings is Map<String, Object>) {
+      Map<String, Object> bindingsMap = bindings as Map<String, Object>;
       encoder.writeUInt16(bindingsMap.length);
-      bindingsMap.forEach((arg, value) {
+      bindingsMap.forEach((String arg, Object value) {
         encoder.writeTypedValue(arg, value, typeSpec: bindingTypes[arg]);
       });
     } else {

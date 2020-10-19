@@ -20,23 +20,23 @@ class TypeSpec {
       {TypeSpec this.keySubType, TypeSpec this.valueSubType}) {
     if (valueType == DataType.LIST &&
         (valueSubType == null || valueSubType is! TypeSpec)) {
-      throw new ArgumentError(
+      throw ArgumentError(
           "LIST type should specify a TypeSpec instance for its values");
     } else if (valueType == DataType.SET &&
         (valueSubType == null || valueSubType is! TypeSpec)) {
-      throw new ArgumentError(
+      throw ArgumentError(
           "SET type should specify a TypeSpec instance for its values");
     } else if (valueType == DataType.MAP &&
         (keySubType == null ||
             keySubType is! TypeSpec ||
             valueSubType == null ||
             valueSubType is! TypeSpec)) {
-      throw new ArgumentError(
+      throw ArgumentError(
           "MAP type should specify TypeSpec instances for both its keys and values");
     } else if (valueType == DataType.UDT) {
-      udtFields = new LinkedHashMap<String, TypeSpec>();
+      udtFields = LinkedHashMap<String, TypeSpec>();
     } else if (valueType == DataType.TUPLE) {
-      tupleFields = new List<TypeSpec>();
+      tupleFields = List<TypeSpec>();
     }
   }
 

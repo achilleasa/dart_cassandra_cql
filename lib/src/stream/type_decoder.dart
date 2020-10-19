@@ -89,7 +89,7 @@ class TypeDecoder {
       }
     }
     _offset += len;
-    return ascii.decode(new Uint8List.view(_buffer.buffer, _offset - len, len));
+    return ascii.decode(Uint8List.view(_buffer.buffer, _offset - len, len));
   }
 
   String readString(SizeType size, [int len = null]) {
@@ -100,7 +100,7 @@ class TypeDecoder {
       }
     }
     _offset += len;
-    return utf8.decode(new Uint8List.view(_buffer.buffer, _offset - len, len));
+    return utf8.decode(Uint8List.view(_buffer.buffer, _offset - len, len));
   }
 
   Uint8List readBytes(SizeType size, [int len = null]) {
@@ -112,7 +112,7 @@ class TypeDecoder {
       }
     }
     _offset += len;
-    return new Uint8List.view(_buffer.buffer, _offset - len, len);
+    return Uint8List.view(_buffer.buffer, _offset - len, len);
   }
 
   Consistency readConsistency() {
@@ -121,12 +121,12 @@ class TypeDecoder {
 
   List<String> readStringList(SizeType size) {
     int len = readLength(size);
-    return new List.generate(len, (_) => readString(size));
+    return List.generate(len, (_) => readString(size));
   }
 
   Map<String, String> readStringMap(SizeType size) {
     int len = readLength(size);
-    final map = <String, String>{};
+    Map map = {};
     while (len-- > 0) {
       map[readString(size)] = readString(size);
     }
@@ -149,7 +149,7 @@ class TypeDecoder {
    */
 
   FrameHeader readHeader() {
-    FrameHeader header = new FrameHeader();
+    FrameHeader header = FrameHeader();
 
     // Parse and validate version
     int versionValue = readByte();
@@ -162,10 +162,10 @@ class TypeDecoder {
         case HeaderVersion.RESPONSE_V3:
           break;
         default:
-          throw new ArgumentError("Unsupported version value");
+          throw ArgumentError("Unsupported version value");
       }
     } on ArgumentError {
-      throw new ArgumentError(
+      throw ArgumentError(
           "Unsupported server version value '0x${versionValue.toRadixString(16)}' while parsing frame header");
     }
 
@@ -207,7 +207,7 @@ class TypeDecoder {
 
     if (len < 1) {
       _offset += len;
-      throw new ArgumentError(
+      throw ArgumentError(
           "Could not parse varint value with length ${len}");
     }
 
@@ -216,7 +216,7 @@ class TypeDecoder {
 
     int bytesToCopy = buf.lengthInBytes;
     int bytesToFill = 1;
-    Uint8List decodeBuffer = new Uint8List(bytesToCopy + bytesToFill);
+    Uint8List decodeBuffer = Uint8List(bytesToCopy + bytesToFill);
 
     // Check the first actual digit (@ buf[0]) to figure out which
     // filler byte we will use for the decode buffer (controls the sign)
@@ -253,7 +253,7 @@ class TypeDecoder {
     // If we have less than 5 bytes then we cannot parse this
     if (len < 5) {
       _offset += len;
-      throw new ArgumentError(
+      throw ArgumentError(
           "Could not parse decimal value with length ${len}");
     }
 
@@ -262,7 +262,7 @@ class TypeDecoder {
 
     int bytesToCopy = buf.lengthInBytes - 4;
     int bytesToFill = 1;
-    Uint8List decodeBuffer = new Uint8List(bytesToCopy + bytesToFill);
+    Uint8List decodeBuffer = Uint8List(bytesToCopy + bytesToFill);
 
     // Check the first actual digit (@ buf[4]) to figure out which
     // filler byte we will use for the decode buffer (controls the sign)
@@ -293,21 +293,21 @@ class TypeDecoder {
     switch (type) {
       case DataType.CUSTOM:
         // Custom type java FQ class
-        spec = new TypeSpec(type)..customTypeClass = readString(SizeType.SHORT);
+        spec = TypeSpec(type)..customTypeClass = readString(SizeType.SHORT);
         break;
       case DataType.LIST:
       case DataType.SET:
         // Value is an option representing the list item type
-        spec = new TypeSpec(type,
+        spec = TypeSpec(type,
             keySubType: keyType, valueSubType: readTypeOption());
         break;
       case DataType.MAP:
         // We have two option values, one for the map key type and one for the value type
-        spec = new TypeSpec(type,
+        spec = TypeSpec(type,
             keySubType: readTypeOption(), valueSubType: readTypeOption());
         break;
       case DataType.UDT:
-        spec = new TypeSpec(type);
+        spec = TypeSpec(type);
         spec.keyspace = readString(SizeType.SHORT);
         spec.udtName = readString(SizeType.SHORT);
         // numFields <String, TypeOption> tuples follow
@@ -317,7 +317,7 @@ class TypeDecoder {
         }
         break;
       case DataType.TUPLE:
-        spec = new TypeSpec(type);
+        spec = TypeSpec(type);
         // numFields <TypeOption> records follow
         int numFields = readShort();
         for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
@@ -325,7 +325,7 @@ class TypeDecoder {
         }
         break;
       default:
-        spec = new TypeSpec(type);
+        spec = TypeSpec(type);
     }
 
     return spec;
@@ -350,7 +350,7 @@ class TypeDecoder {
         return readString(size, lenInBytes);
       case DataType.UUID:
       case DataType.TIMEUUID:
-        return new Uuid.fromBytes(readBytes(size, lenInBytes));
+        return Uuid.fromBytes(readBytes(size, lenInBytes));
       case DataType.CUSTOM:
         // If a codec has been specified for this type, use that; otherwise return the
         // serialized data as a Uint8 list
@@ -366,7 +366,7 @@ class TypeDecoder {
       case DataType.COUNTER:
         return readLong();
       case DataType.TIMESTAMP:
-        return new DateTime.fromMillisecondsSinceEpoch(readLong());
+        return DateTime.fromMillisecondsSinceEpoch(readLong());
       case DataType.BOOLEAN:
         return readByte() != 0;
       case DataType.FLOAT:
@@ -377,13 +377,13 @@ class TypeDecoder {
         // INET can be either 4 (ipv4) or 16 (ipv6) bytes long
         if (lenInBytes == 4) {
           Uint8List buf = readBytes(SizeType.BYTE, lenInBytes);
-          return new InternetAddress(buf.join("."));
+          return InternetAddress(buf.join("."));
         } else if (lenInBytes == 16) {
-          return new InternetAddress(
-              new List<String>.generate(8, (_) => readShort().toRadixString(16))
+          return InternetAddress(
+              List<String>.generate(8, (_) => readShort().toRadixString(16))
                   .join(":"));
         } else {
-          throw new Exception(
+          throw Exception(
               "Could not decode INET type of length ${lenInBytes}");
         }
         break;
@@ -396,7 +396,7 @@ class TypeDecoder {
 
         // The spec defines a list as a short (num of elements) followed by N typeSpec.value records.
         // Each record is a <short(V2)>/<int(V3)> length followed by M bytes.
-        return new List.generate(
+        return List.generate(
             len, (_) => readTypedValue(typeSpec.valueSubType, size: itemSize));
       case DataType.SET:
         SizeType itemSize = protocolVersion == ProtocolVersion.V2
@@ -407,7 +407,7 @@ class TypeDecoder {
 
         // The spec defines a set as a short (num of elements) followed by N typeSpec.value records
         // Each record is a <short(V2)>/<int(V3)> length followed by M bytes.
-        Set set = new Set();
+        Set set = Set();
         for (; entry > 0; entry--) {
           set.add(readTypedValue(typeSpec.valueSubType, size: itemSize));
         }
@@ -418,7 +418,7 @@ class TypeDecoder {
             : SizeType.LONG;
 
         // The spec defines a map as a short (num of elements) followed by N <typeSpec.value, typeSpec.value2> record pairs.
-        Map map = new LinkedHashMap();
+        Map map = LinkedHashMap();
         int pair = itemSize == SizeType.SHORT ? readShort() : readInt();
 
         for (; pair > 0; pair--) {
@@ -431,12 +431,12 @@ class TypeDecoder {
       case DataType.VARINT:
         return readVarInt(size, lenInBytes);
       case DataType.UDT:
-        Map udt = new LinkedHashMap();
+        Map udt = LinkedHashMap();
         typeSpec.udtFields.forEach((String name, TypeSpec udtSpec) =>
             udt[name] = readTypedValue(udtSpec, size: size));
         return udt;
       case DataType.TUPLE:
-        Tuple tuple = new Tuple.fromIterable(new List.generate(
+        Tuple tuple = Tuple.fromIterable(List.generate(
             typeSpec.tupleFields.length,
             (int fieldIndex) =>
                 readTypedValue(typeSpec.tupleFields[fieldIndex], size: size)));
@@ -448,7 +448,7 @@ class TypeDecoder {
   }
 
   void dumpToFile(String outputFile) {
-    new File(outputFile)..writeAsBytesSync(_buffer.buffer.asInt8List());
+    File(outputFile)..writeAsBytesSync(_buffer.buffer.asInt8List());
   }
 
   get offset => _offset;

@@ -60,7 +60,7 @@ class ErrorCode extends Enum<int> {
                                                                 : null;
 
     if (fromValue == null) {
-      throw new ArgumentError(
+      throw ArgumentError(
           "Invalid error code value 0x${value.toRadixString(16)}");
     }
     return fromValue;

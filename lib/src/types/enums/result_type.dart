@@ -23,7 +23,7 @@ class ResultType extends Enum<int> {
                     : value == SCHEMA_CHANGE._value ? SCHEMA_CHANGE : null;
 
     if (fromValue == null) {
-      throw new ArgumentError(
+      throw ArgumentError(
           "Invalid result type value 0x${value.toRadixString(16)}");
     }
     return fromValue;

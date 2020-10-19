@@ -2,7 +2,7 @@ part of dart_cassandra_cql.protocol;
 
 class FrameReader {
   StreamTransformer<Frame, Message> get transformer =>
-      new StreamTransformer<Frame, Message>.fromHandlers(
+      StreamTransformer<Frame, Message>.fromHandlers(
           handleData: handleData,
           handleDone: handleDone,
           handleError: handleError);
@@ -24,29 +24,29 @@ class FrameReader {
   void handleData(Frame frame, EventSink<Message> sink) {
     try {
       TypeDecoder decoder =
-          new TypeDecoder.fromBuffer(frame.body, frame.getProtocolVersion());
+          TypeDecoder.fromBuffer(frame.body, frame.getProtocolVersion());
       Message message = null;
       switch (frame.header.opcode) {
         case Opcode.AUTHENTICATE:
-          message = new AuthenticateMessage.parse(decoder);
+          message = AuthenticateMessage.parse(decoder);
           break;
         case Opcode.AUTH_CHALLENGE:
-          message = new AuthChallengeMessage.parse(decoder);
+          message = AuthChallengeMessage.parse(decoder);
           break;
         case Opcode.AUTH_SUCCESS:
-          message = new AuthSuccessMessage.parse(decoder);
+          message = AuthSuccessMessage.parse(decoder);
           break;
         case Opcode.ERROR:
-          message = new ErrorMessage.parse(decoder);
+          message = ErrorMessage.parse(decoder);
           break;
         case Opcode.READY:
-          message = new ReadyMessage();
+          message = ReadyMessage();
           break;
         case Opcode.RESULT:
-          message = new ResultMessage.parse(decoder);
+          message = ResultMessage.parse(decoder);
           break;
         case Opcode.EVENT:
-          message = new EventMessage.parse(decoder);
+          message = EventMessage.parse(decoder);
           break;
         default:
           return;
@@ -59,7 +59,7 @@ class FrameReader {
       sink.add(message);
     } catch (ex, trace) {
       // Emit an exception message
-      ExceptionMessage message = new ExceptionMessage(ex, trace);
+      ExceptionMessage message = ExceptionMessage(ex, trace);
       message.streamId = frame.header.streamId;
       sink.add(message);
     }

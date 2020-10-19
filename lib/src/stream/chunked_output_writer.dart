@@ -1,7 +1,7 @@
 part of dart_cassandra_cql.stream;
 
 class ChunkedOutputWriter {
-  final ListQueue<Uint8List> _bufferedChunks = new ListQueue<Uint8List>();
+  final ListQueue<Uint8List> _bufferedChunks = ListQueue<Uint8List>();
 
   /**
    * Add a [chunk] to the head of the buffer queue
@@ -63,7 +63,7 @@ class ChunkedOutputWriter {
    * Join all chunk blocks into a contiguous chunk
    */
   Uint8List joinChunks() {
-    Uint8List out = new Uint8List(lengthInBytes);
+    Uint8List out = Uint8List(lengthInBytes);
     int offset = 0;
     _bufferedChunks.forEach((Uint8List block) {
       int len = block.lengthInBytes;

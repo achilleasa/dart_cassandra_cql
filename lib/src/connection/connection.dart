@@ -20,7 +20,7 @@ class Connection {
 
   // A pool of frame writers for each multiplexed stream
   AsyncQueue<FrameWriter> _frameWriterPool;
-  Map<int, FrameWriter> _reservedFrameWriters = new Map<int, FrameWriter>();
+  Map<int, FrameWriter> _reservedFrameWriters = Map<int, FrameWriter>();
 
   // Tracked futures/streams
   Map<int, Completer<Message>> _pendingResponses;
@@ -31,10 +31,10 @@ class Connection {
   Connection(String this.connId, String this.host, int this.port,
       {PoolConfiguration config, String this.defaultKeyspace}) {
     // If no config is specified, use the default one
-    _poolConfig = config == null ? new PoolConfiguration() : config;
+    _poolConfig = config == null ? PoolConfiguration() : config;
 
     // Initialize pending futures list
-    _pendingResponses = new Map<int, Completer<Message>>();
+    _pendingResponses = Map<int, Completer<Message>>();
   }
 
   StreamController _eventController;
@@ -60,8 +60,7 @@ class Connection {
     _connected = null;
 
     // Kill socket
-    Future socketClosed =
-        _socket != null ? _socket.close() : new Future.value();
+    Future socketClosed = _socket != null ? _socket.close() : Future.value();
     _socket = null;
 
     return socketClosed;
@@ -75,30 +74,28 @@ class Connection {
 
   Future _reconnect() {
     if (_connected == null) {
-      _connected = new Completer();
+      _connected = Completer();
     }
 
     connectionLogger.info(
         "[${connId}] Trying to connect to ${host}:${port} [attempt ${_connectionAttempt + 1}/${_poolConfig.maxConnectionAttempts}]");
     Socket.connect(host, port).then((Socket s) {
       _socket = s;
-      _socketFlushed = new Future.value(true);
+      _socketFlushed = Future.value(true);
 
       // Initialize our writer pool and set the reservation timeout
       _reservedFrameWriters.clear();
-      _frameWriterPool = new AsyncQueue<FrameWriter>.from(
-          new List<FrameWriter>.generate(
-              _poolConfig.streamsPerConnection,
-              (int id) => new FrameWriter(id, _poolConfig.protocolVersion,
-                  preferBiggerTcpPackets: _poolConfig.preferBiggerTcpPackets)));
-      _frameWriterPool.reservationTimeout =
-          _poolConfig.streamReservationTimeout;
+      _frameWriterPool = AsyncQueue<FrameWriter>.from(List<FrameWriter>.generate(
+          _poolConfig.streamsPerConnection,
+          (int id) => FrameWriter(id, _poolConfig.protocolVersion,
+              preferBiggerTcpPackets: _poolConfig.preferBiggerTcpPackets)));
+      _frameWriterPool.reservationTimeout = _poolConfig.streamReservationTimeout;
 
       // Bind processors and initiate handshake
       _socket
-          .transform(new FrameParser().transformer)
-          .transform(new FrameDecompressor(_poolConfig.compression).transformer)
-          .transform(new FrameReader().transformer)
+          .transform(FrameParser().transformer)
+          .transform(FrameDecompressor(_poolConfig.compression).transformer)
+          .transform(FrameReader().transformer)
           .listen(
               _onMessage
               // Mute socket errors; they will be caught by _writeMessage
@@ -110,8 +107,7 @@ class Connection {
           _socket = null;
         }
 
-        _abortRequestsAndCleanup(
-            new ConnectionLostException("Server closed the connection"));
+        _abortRequestsAndCleanup(ConnectionLostException("Server closed the connection"));
       });
 
       // Handshake with the server
@@ -121,14 +117,13 @@ class Connection {
         String errorMessage =
             "[${connId}] Could not connect to ${host}:${port} after ${_poolConfig.maxConnectionAttempts} attempts. Giving up";
         connectionLogger.severe(errorMessage);
-        _connected
-            .completeError(new ConnectionFailedException(errorMessage, trace));
+        _connected.completeError(ConnectionFailedException(errorMessage, trace));
 
         // Clear _connected future so the client can invoke open() in the future
         _connected = null;
       } else {
         // Retry after reconnectWaitTime ms
-        new Timer(_poolConfig.reconnectWaitTime, _reconnect);
+        Timer(_poolConfig.reconnectWaitTime, _reconnect);
       }
     });
 
@@ -138,31 +133,25 @@ class Connection {
   Future<ResultMessage> _authenticate(AuthenticateMessage authMessage) {
     // Check if an authenticator is specified
     if (_poolConfig.authenticator == null) {
-      throw new AuthenticationException(
+      throw AuthenticationException(
           "Server requested '${authMessage.authenticatorClass}' authenticator but no authenticator specified");
-    } else if (authMessage.authenticatorClass !=
-        _poolConfig.authenticator.authenticatorClass) {
-      throw new AuthenticationException(
+    } else if (authMessage.authenticatorClass != _poolConfig.authenticator.authenticatorClass) {
+      throw AuthenticationException(
           "Server requested '${authMessage.authenticatorClass}' authenticator but a '${_poolConfig.authenticator.authenticatorClass}' authenticator was specified instead");
     }
 
     // Run through challenge response till we get back a ready message from the server
-    Completer completer = new Completer();
+    Completer completer = Completer();
 
     void answerChallenge(Message result) {
       if (result is AuthenticateMessage || result is AuthChallengeMessage) {
-        AuthResponseMessage response = new AuthResponseMessage()
-          ..responsePayload = _poolConfig.authenticator.answerChallenge(
-              result is AuthenticateMessage
-                  ? result.challengePayload
-                  : (result as AuthChallengeMessage).challengePayload);
+        AuthResponseMessage response = AuthResponseMessage()
+          ..responsePayload = _poolConfig.authenticator.answerChallenge(result is AuthenticateMessage
+              ? result.challengePayload
+              : (result as AuthChallengeMessage).challengePayload);
 
         _writeMessage(response).then(answerChallenge).catchError((e, trace) {
-          completer.completeError(
-              e is CassandraException
-                  ? new AuthenticationException(e.message, trace)
-                  : e,
-              trace);
+          completer.completeError(e is CassandraException ? AuthenticationException(e.message, trace) : e, trace);
         });
       } else if (result is AuthSuccessMessage) {
         completer.complete(result);
@@ -179,7 +168,7 @@ class Connection {
    */
 
   void _handshake() {
-    StartupMessage message = new StartupMessage()
+    StartupMessage message = StartupMessage()
       ..cqlVersion = _poolConfig.cqlVersion
       ..compression = _poolConfig.compression;
 
@@ -188,14 +177,14 @@ class Connection {
       if (response is AuthenticateMessage) {
         return _authenticate(response);
       } else {
-        return new Future.value(response);
+        return Future.value(response);
       }
     }).then((_) {
       // if default keyspace is specified, run a query here.
       // Note since the connection is not yet *open* we cannot invoke execute() here
       if (defaultKeyspace != null) {
-        Query query = new Query("USE ${defaultKeyspace}");
-        QueryMessage message = new QueryMessage()
+        Query query = Query("USE ${defaultKeyspace}");
+        QueryMessage message = QueryMessage()
           ..query = query.expandedQuery
           ..bindings = null
           ..consistency = query.consistency
@@ -226,14 +215,12 @@ class Connection {
    */
 
   Future<Message> _writeMessage(RequestMessage message) {
-    final reply = new Completer<Message>();
+    final reply = Completer<Message>();
     // Make sure we have flushed our socket data and then
     // block till we get back a frame writer
     // We also assign returned future to _socketFlushed to avoid
     // race conditions on consecutive calls to _writeMessage.
-    _socketFlushed = _socketFlushed
-        .then((_) => _frameWriterPool.reserve())
-        .then((FrameWriter writer) {
+    _socketFlushed = _socketFlushed.then((_) => _frameWriterPool.reserve()).then((FrameWriter writer) {
       _reservedFrameWriters[writer.getStreamId()] = writer;
       _pendingResponses[writer.getStreamId()] = reply;
       connectionLogger.fine(
@@ -244,8 +231,7 @@ class Connection {
     }).catchError((e, trace) {
       // Wrap SocketExceptions
       if (e is SocketException) {
-        _abortRequestsAndCleanup(
-            new ConnectionLostException('Lost connection'));
+        _abortRequestsAndCleanup(ConnectionLostException('Lost connection'));
       } else {
         reply.completeError(e);
       }
@@ -310,17 +296,14 @@ class Connection {
         responseCompleter.complete(message);
         break;
       case Opcode.EVENT:
-        if (_eventController != null &&
-            _eventController.hasListener &&
-            !_eventController.isPaused) {
+        if (_eventController != null && _eventController.hasListener && !_eventController.isPaused) {
           _eventController.add(message as EventMessage);
         }
         break;
       case Opcode.ERROR:
         ErrorMessage errorMessage = message as ErrorMessage;
-        connectionLogger.severe(errorMessage.message);
-        responseCompleter
-            .completeError(new CassandraException(errorMessage.message));
+        // connectionLogger.severe(errorMessage.message);
+        responseCompleter.completeError(CassandraException(errorMessage.message));
         break;
     }
   }
@@ -367,11 +350,10 @@ class Connection {
    * This method returns a [Future] to be completed when the connection is shut down
    */
 
-  Future close(
-      {bool drain: true, Duration drainTimeout: const Duration(seconds: 5)}) {
+  Future close({bool drain: true, Duration drainTimeout: const Duration(seconds: 5)}) {
     // Already closed
     if (_socket == null) {
-      return new Future.value();
+      return Future.value();
     }
 
     connectionLogger.info("[${connId}] Closing (drain = ${drain})");
@@ -382,15 +364,13 @@ class Connection {
     if (drain) {
       inService = false;
       if (_drained == null) {
-        _drained = new Completer();
+        _drained = Completer();
         _checkForDrainedRequests();
 
         if (drainTimeout != null) {
-          new Future.delayed(drainTimeout).then((_) {
+          Future.delayed(drainTimeout).then((_) {
             if (_drained != null && !_drained.isCompleted) {
-              _abortRequestsAndCleanup(
-                      new ConnectionLostException('Connection drain timeout'))
-                  .then((_) {
+              _abortRequestsAndCleanup(ConnectionLostException('Connection drain timeout')).then((_) {
                 _drained.complete();
               });
             }
@@ -400,22 +380,19 @@ class Connection {
 
       return _drained.future;
     } else {
-      return _abortRequestsAndCleanup(
-          new ConnectionLostException('Connection closed'));
+      return _abortRequestsAndCleanup(ConnectionLostException('Connection closed'));
     }
   }
 
-  Future<PreparedResultMessage> prepare(Query query) {
-    return open().then((_) async {
-      // V2 version of the protocol does not support named placeholders. We need to convert them
-      // to positional ones before preparing the statements
-      PrepareMessage message = new PrepareMessage()
-        ..query = _poolConfig.protocolVersion == ProtocolVersion.V2
-            ? query.positionalQuery
-            : query.query;
+  Future<PreparedResultMessage> prepare(Query query) async {
+    await open();
 
-      return (await _writeMessage(message)) as PreparedResultMessage;
-    });
+    // V3 version of the protocol does not support named placeholders. We need to convert them
+    // to positional ones before preparing the statements
+    PrepareMessage message = PrepareMessage()
+      ..query = _poolConfig.protocolVersion == ProtocolVersion.V3 ? query.positionalQuery : query.query;
+
+    return _cast<PreparedResultMessage>(await _writeMessage(message));
   }
 
   /**
@@ -428,54 +405,51 @@ class Connection {
    */
 
   Future<ResultMessage> execute(Query query,
-      {PreparedResultMessage preparedResult: null,
-      int pageSize: null,
-      Uint8List pagingState: null}) {
-    return open().then((_) async {
-      // Simple unprepared query
-      if (preparedResult == null) {
-        QueryMessage message = new QueryMessage()
-          ..query = query.expandedQuery
-          ..bindings = null
-          ..consistency = query.consistency
-          ..serialConsistency = query.serialConsistency
-          ..resultPageSize = pageSize
-          ..pagingState = pagingState;
+      {PreparedResultMessage preparedResult: null, int pageSize: null, Uint8List pagingState: null}) async {
+    await open();
 
-        return await _writeMessage(message);
-      } else {
-        // Prepared query. V2 of the protocol does not support named bindings so we need to
-        // map them to positional ones
-        ExecuteMessage message = new ExecuteMessage()
-          ..queryId = preparedResult.queryId
-          ..bindings = _poolConfig.protocolVersion == ProtocolVersion.V2
-              ? query.namedToPositionalBindings
-              : query.bindings
-          ..bindingTypes = preparedResult.metadata.colSpec
-          ..consistency = query.consistency
-          ..serialConsistency = query.serialConsistency
-          ..resultPageSize = pageSize
-          ..pagingState = pagingState;
+    // Simple unprepared query
+    if (preparedResult == null) {
+      QueryMessage message = QueryMessage()
+        ..query = query.expandedQuery
+        ..bindings = null
+        ..consistency = query.consistency
+        ..serialConsistency = query.serialConsistency
+        ..resultPageSize = pageSize
+        ..pagingState = pagingState;
 
-        return await _writeMessage(message);
-      }
-    });
+      return _cast<ResultMessage>(await _writeMessage(message));
+    } else {
+      // Prepared query. V3 of the protocol does not support named bindings so we need to
+      // map them to positional ones
+      ExecuteMessage message = ExecuteMessage()
+        ..queryId = preparedResult.queryId
+        ..bindings =
+            _poolConfig.protocolVersion == ProtocolVersion.V3 ? query.namedToPositionalBindings : query.bindings
+        ..bindingTypes = preparedResult.metadata.colSpec
+        ..consistency = query.consistency
+        ..serialConsistency = query.serialConsistency
+        ..resultPageSize = pageSize
+        ..pagingState = pagingState;
+
+      return _cast<ResultMessage>(await _writeMessage(message));
+    }
   }
 
   /**
    * Execute the supplied batch [query]
    */
 
-  Future<ResultMessage> executeBatch(BatchQuery query) {
-    return open().then((_) async {
-      BatchMessage message = new BatchMessage()
-        ..type = query.type
-        ..consistency = query.consistency
-        ..serialConsistency = query.serialConsistency
-        ..queryList = query.queryList;
+  Future<RowsResultMessage> executeBatch(BatchQuery query) async {
+    await open();
 
-      return await _writeMessage(message);
-    });
+    BatchMessage message = BatchMessage()
+      ..type = query.type
+      ..consistency = query.consistency
+      ..serialConsistency = query.serialConsistency
+      ..queryList = query.queryList;
+
+    return _cast<RowsResultMessage>(await _writeMessage(message));
   }
 
   /**
@@ -483,24 +457,22 @@ class Connection {
    * and return a [Stream<EventMessage>] for handling incoming events
    */
 
-  Stream<EventMessage> listenForEvents(
-      Iterable<EventRegistrationType> eventTypes) {
-    RegisterMessage message = new RegisterMessage()..eventTypes = eventTypes;
+  Stream<EventMessage> listenForEvents(Iterable<EventRegistrationType> eventTypes) {
+    RegisterMessage message = RegisterMessage()..eventTypes = eventTypes;
 
     // Setup the stream controller
     if (_eventController == null) {
-      _eventController = new StreamController<EventMessage>();
+      _eventController = StreamController<EventMessage>();
     }
 
-    open()
-        .then((_) => _writeMessage(message))
-        .catchError(_eventController.addError);
+    open().then((_) => _writeMessage(message)).catchError(_eventController.addError);
     return _eventController.stream;
   }
 
   /**
    * Check if the connection has available stream slots for multiplexing additional queries
    */
-  bool get hasAvailableStreams =>
-      _frameWriterPool != null && _frameWriterPool.hasAvailableSlots;
+  bool get hasAvailableStreams => _frameWriterPool != null && _frameWriterPool.hasAvailableSlots;
+
+  T _cast<T>(x) => x is T ? x : null;
 }

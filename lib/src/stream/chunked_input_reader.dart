@@ -1,7 +1,7 @@
 part of dart_cassandra_cql.stream;
 
 class ChunkedInputReader {
-  final _bufferedChunks = new ListQueue<List<int>>();
+  final _bufferedChunks = ListQueue<List<int>>();
   int _usedHeadBytes = 0;
 
   /**

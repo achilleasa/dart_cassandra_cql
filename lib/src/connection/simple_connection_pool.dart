@@ -2,14 +2,14 @@ part of dart_cassandra_cql.connection;
 
 class SimpleConnectionPool extends ConnectionPool {
   // The list of all pool connections
-  final List<Connection> _pool = new List<Connection>();
+  final List<Connection> _pool = List<Connection>();
 
   // The list of maintained connections per host:port combination
   final Map<String, Set<Connection>> _poolPerHost =
-      new HashMap<String, Set<Connection>>();
+      HashMap<String, Set<Connection>>();
 
   // Pending list of reconnect attempts
-  final Map<String, Future> _pendingReconnects = new HashMap<String, Future>();
+  final Map<String, Future> _pendingReconnects = HashMap<String, Future>();
 
   // Server event listeners
   Connection _eventSubscriber;
@@ -28,11 +28,11 @@ class SimpleConnectionPool extends ConnectionPool {
       List<String> hosts, PoolConfiguration poolConfig,
       {String this.defaultKeyspace}) {
     if (hosts == null || hosts.isEmpty) {
-      throw new ArgumentError("Host list cannot be empty");
+      throw ArgumentError("Host list cannot be empty");
     }
 
     if (poolConfig == null) {
-      throw new ArgumentError("A valid pool configuration is required");
+      throw ArgumentError("A valid pool configuration is required");
     }
     this.poolConfig = poolConfig;
 
@@ -67,7 +67,7 @@ class SimpleConnectionPool extends ConnectionPool {
     }
 
     // Setup a future to be completed when our connections are set up
-    _poolConnected = new Completer();
+    _poolConnected = Completer();
     poolLogger.info("Initializing pool connections");
 
     //
@@ -101,7 +101,7 @@ class SimpleConnectionPool extends ConnectionPool {
         if (remainingConnections == 0 && !_poolConnected.isCompleted) {
           // All connections failed
           if (activeConnections == 0) {
-            _poolConnected.completeError(new NoHealthyConnectionsException(
+            _poolConnected.completeError(NoHealthyConnectionsException(
                 "Could not connect to any of the supplied hosts"));
           } else {
             // At least one connection has been established
@@ -159,8 +159,8 @@ class SimpleConnectionPool extends ConnectionPool {
       }
 
       if (healthyConnection == null) {
-        return new Future.error(new NoHealthyConnectionsException(
-            "No healhty connections available"));
+        return Future.error(NoHealthyConnectionsException(
+            "No healthy connections available"));
       } else {
         // Remove the connection and append it to the end of the list
         // so we can round-robin our connections
@@ -168,7 +168,7 @@ class SimpleConnectionPool extends ConnectionPool {
           ..remove(healthyConnection)
           ..add(healthyConnection);
       }
-      return new Future.value(healthyConnection);
+      return Future.value(healthyConnection);
     });
   }
 
@@ -215,7 +215,7 @@ class SimpleConnectionPool extends ConnectionPool {
         // According to the protocol spec, it might take some time for the node
         // to begin accepting connections so we need to defer our connection attempts.
         _pendingReconnects[hostKey] =
-            new Future.delayed(poolConfig.reconnectWaitTime, () {
+            Future.delayed(poolConfig.reconnectWaitTime, () {
           _poolPerHost[hostKey].forEach((Connection conn) => conn.open());
           _pendingReconnects.remove(hostKey);
         });
@@ -257,13 +257,13 @@ class SimpleConnectionPool extends ConnectionPool {
 
   void _createPoolForHost(String host, int port) {
     String hostKey = "${host}:${port}";
-    _poolPerHost[hostKey] = new HashSet<Connection>();
+    _poolPerHost[hostKey] = HashSet<Connection>();
 
     // Allocate poolConfig.connectionsPerHost connections
     for (int poolIndex = 0;
         poolIndex < poolConfig.connectionsPerHost;
         poolIndex++) {
-      Connection conn = new Connection("${hostKey}-${poolIndex}", host, port,
+      Connection conn = Connection("${hostKey}-${poolIndex}", host, port,
           config: poolConfig, defaultKeyspace: defaultKeyspace);
 
       _poolPerHost[hostKey].add(conn);

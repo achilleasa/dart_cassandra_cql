@@ -3,7 +3,7 @@ part of dart_cassandra_cql.protocol;
 class FrameWriter {
   bool preferBiggerTcpPackets;
   TypeEncoder _typeEncoder;
-  FrameHeader _header = new FrameHeader();
+  FrameHeader _header = FrameHeader();
 
   FrameWriter(int streamId, ProtocolVersion protocolVersion,
       {TypeEncoder withEncoder: null,
@@ -16,7 +16,7 @@ class FrameWriter {
       ..streamId = streamId;
 
     _typeEncoder =
-        withEncoder == null ? new TypeEncoder(protocolVersion) : withEncoder;
+        withEncoder == null ? TypeEncoder(protocolVersion) : withEncoder;
   }
 
   int getStreamId() {
@@ -34,7 +34,7 @@ class FrameWriter {
     if (compression != null && message.opcode != Opcode.STARTUP) {
       Codec<Object, Uint8List> compressionCodec = getCodec(compression.value);
       if (compressionCodec == null) {
-        throw new DriverException(
+        throw DriverException(
             "A compression codec needs to be registered via registerCodec() for type '${compression}'");
       }
 
@@ -45,7 +45,7 @@ class FrameWriter {
         compressedData =
             compressionCodec.encode(_typeEncoder.writer.joinChunks());
       } catch (e, trace) {
-        throw new DriverException(
+        throw DriverException(
             "An error occurred while invoking '${compression}' codec (compression): ${e}",
             trace);
       }
@@ -59,16 +59,16 @@ class FrameWriter {
     // Check for max payload size
     if (_typeEncoder.writer.lengthInBytes > FrameHeader.MAX_LENGTH_IN_BYTES) {
       _typeEncoder.writer.clear();
-      throw new DriverException(
+      throw DriverException(
           "Frame size cannot be larger than ${FrameHeader.MAX_LENGTH_IN_BYTES} bytes. Attempted to write ${_typeEncoder.writer.lengthInBytes} bytes");
     }
 
     // Allocate header buffer
-    Uint8List buf = new Uint8List(
+    Uint8List buf = Uint8List(
         _typeEncoder.protocolVersion == ProtocolVersion.V2
             ? FrameHeader.SIZE_IN_BYTES_V2
             : FrameHeader.SIZE_IN_BYTES_V3);
-    ByteData headerBytes = new ByteData.view(buf.buffer);
+    ByteData headerBytes = ByteData.view(buf.buffer);
 
     // Encode header
     int offset = 0;

@@ -3,18 +3,18 @@ part of dart_cassandra_cql.client;
 class Client {
   final ConnectionPool connectionPool;
   final Map<String, Future<PreparedResultMessage>> preparedQueries =
-      new Map<String, Future<PreparedResultMessage>>();
+      Map<String, Future<PreparedResultMessage>>();
 
   /**
    * Create a new client and a [SimpleConnectionPool] to the supplied [hosts] optionally using
-   * the supplied [poolConfig]. If [poolConfig] is not specified, a default configuration will be used insted.
-   * If a [defaultKeyspace] is provided, it will be autoselected during the handshake phase of each pool connection
+   * the supplied [poolConfig]. If [poolConfig] is not specified, a default configuration will be used instead.
+   * If a [defaultKeyspace] is provided, it will be auto selected during the handshake phase of each pool connection
    */
 
   factory Client.fromHostList(List<String> hosts,
       {String defaultKeyspace, PoolConfiguration poolConfig}) {
-    final connectionPool = new SimpleConnectionPool.fromHostList(
-        hosts, poolConfig == null ? new PoolConfiguration() : poolConfig,
+    final connectionPool = SimpleConnectionPool.fromHostList(
+        hosts, poolConfig == null ? PoolConfiguration() : poolConfig,
         defaultKeyspace: defaultKeyspace);
     return new Client.withPool(connectionPool,
         defaultKeyspace: defaultKeyspace);
@@ -46,8 +46,7 @@ class Client {
    */
   Future<Iterable<Map<String, Object>>> query(Query query) async {
     // Run query and return back
-    final res = await _executeSingle(query);
-    return (res as RowsResultMessage).rows;
+    return (await _executeSingle(query)).rows;
   }
 
   /**
@@ -56,7 +55,7 @@ class Client {
    * demand. The result page size is controlled by the [pageSize] parameter (defaults to 100 rows).
    */
   Stream<Map<String, Object>> stream(Query query, {int pageSize: 100}) {
-    return new ResultStream(_executeSingle, query, pageSize).stream;
+    return ResultStream(_executeSingle, query, pageSize).stream;
   }
 
   /**
@@ -93,7 +92,7 @@ class Client {
    */
   Future<ResultMessage> _executeSingle(Query query,
       {int pageSize: null, Uint8List pagingState: null}) async {
-    final completer = new Completer<Message>();
+    final completer = Completer<ResultMessage>();
 
     // If this is a normal query, pick the next available pool connection and execute it
     if (!query.prepared) {
